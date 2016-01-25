@@ -85,9 +85,9 @@ class GP_Auto_Extract {
 
 			list( $originals_added, $originals_existing, $originals_fuzzied, $originals_obsoleted ) = GP::$original->import_for_project( $project, $translations );
 
-			echo '<div class="notice updated"><p>';
+			$message = '<div class="notice updated"><p>';
 			
-			printf(
+			$message .= sprintf(
 				__( '%1$s new strings added, %2$s updated, %3$s fuzzied, and %4$s obsoleted in the "%5$s" project.' ),
 				$originals_added,
 				$originals_existing,
@@ -96,12 +96,15 @@ class GP_Auto_Extract {
 				$project->name
 			);
 			
-			echo '</p></div>';
+			$message .= '</p></div>';
 
 			$this->delTree( $temp_dir );
 			unlink( $temp_pot );
+		} else {
+			$message = '<div class="notice updated"><p>' . sprintf( __('Failed to download "%s".' ), $url_name ) . '</p></div>';
 		}
 
+		return $message;
 	}
 	
 	// This function displays the admin settings page in WordPress.
@@ -129,12 +132,18 @@ class GP_Auto_Extract {
 			}
 
 			if( array_key_exists( 'extract_' . $project->id, $_POST ) ) {
-				$this->extract_project( $project, $project_settings );
+				if( 'none' != $project_settings[ $project->id ][ 'type' ] ) {
+					$message = $this->extract_project( $project, $project_settings );
+				} else {
+					$message = '<div class="notice error"><p>' . sprintf( __('No source type selected for project "%s".' ), $project->name ) . '</p></div>';
+				}
 			}
 		}
 		
 	?>	
 <div class="wrap">
+	<?php echo $message; ?>
+
 	<h2><?php _e('GP Auto Extract Settings');?></h2>
 
 	<br />
@@ -165,8 +174,11 @@ class GP_Auto_Extract {
 		
 		$buttons = '';
 		$buttons .= get_submit_button( __('Save'), 'primary', 'save_' . $project->id, false ) . '&nbsp;';
-		$buttons .= get_submit_button( __('Delete'), 'delete', 'delete_' . $project->id, false ) . '&nbsp;';
-		$buttons .= get_submit_button( __('Extract'), 'secondary', 'extract_' . $project->id, false ) . '&nbsp;';
+		
+		if( 'none' != $project_settings[ $project->id ][ 'type' ] ) {
+			$buttons .= get_submit_button( __('Delete'), 'delete', 'delete_' . $project->id, false ) . '&nbsp;';
+			$buttons .= get_submit_button( __('Extract'), 'secondary', 'extract_' . $project->id, false ) . '&nbsp;';
+		}
 		
 		$source_type_selector = '<select name="source_type_' . $project->id . '" id="source_type_' . $project->id . '">';
 		
