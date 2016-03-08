@@ -1,5 +1,5 @@
 === GP Auto Extract ===
-Contributors: gregross
+Contributors: GregRoss
 Donate link: http://toolstack.com/donate
 Plugin URI: http://glot-o-matic.com/gp-auto-extract
 Author URI: http://toolstack.com
