@@ -14,7 +14,7 @@ A plugin for GlotPress as a WordPress plugin that adds an option to extract orig
 
 == Description ==
 
-A plugin for [GlotPress as a WordPress plugin](https://github.com/deliciousbrains/GlotPress) that adds an option to extract original strings from a remote source repo directly in to a GlotPress project.
+A plugin for [GlotPress as a WordPress plugin](https://github.com/GlotPress/GlotPress-WP) that adds an option to extract original strings from a remote source repo directly in to a GlotPress project.
 
 == Installation ==
 
