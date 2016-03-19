@@ -114,6 +114,8 @@ class GP_Auto_Extract {
 
 		$projects = GP::$project->all();
 	
+		$message = '';
+		
 		$project_settings = (array)get_option( 'gp_auto_extract', array() );
 		
 		foreach( $projects as $project ) {
