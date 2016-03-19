@@ -177,7 +177,7 @@ class GP_Auto_Extract {
 		$buttons = '';
 		$buttons .= get_submit_button( __('Save'), 'primary', 'save_' . $project->id, false ) . '&nbsp;';
 		
-		if( 'none' != $project_settings[ $project->id ][ 'type' ] ) {
+		if( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' != $project_settings[ $project->id ][ 'type' ] ) {
 			$buttons .= get_submit_button( __('Delete'), 'delete', 'delete_' . $project->id, false ) . '&nbsp;';
 			$buttons .= get_submit_button( __('Extract'), 'secondary', 'extract_' . $project->id, false ) . '&nbsp;';
 		}
