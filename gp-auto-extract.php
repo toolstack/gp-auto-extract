@@ -73,7 +73,11 @@ class GP_Auto_Extract {
 			if ( $zip->open( $source_file ) === TRUE ) {
 				$zip->extractTo( $temp_dir );
 				$zip->close();
+				
+				unlink( $source_file );
 			} else {
+				unlink( $source_file );
+				
 				return '<div class="notice updated"><p>' . sprintf( __('Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
 			}
 
@@ -85,6 +89,13 @@ class GP_Auto_Extract {
 
 			$translations = $format->read_originals_from_file( $temp_pot );
 
+			$this->delTree( $temp_dir );
+			unlink( $temp_pot );
+			
+			if( FALSE === $translations ) {
+				return '<div class="notice updated"><p>' . __( 'Failed to read strings from source code.' ) . '</p></div>';
+			}
+			
 			list( $originals_added, $originals_existing, $originals_fuzzied, $originals_obsoleted ) = GP::$original->import_for_project( $project, $translations );
 
 			$message = '<div class="notice updated"><p>';
@@ -99,9 +110,6 @@ class GP_Auto_Extract {
 			);
 			
 			$message .= '</p></div>';
-
-			$this->delTree( $temp_dir );
-			unlink( $temp_pot );
 		} else {
 			$message = '<div class="notice updated"><p>' . sprintf( __('Failed to download "%s".' ), $url_name ) . '</p></div>';
 		}
