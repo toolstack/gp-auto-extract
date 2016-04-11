@@ -73,6 +73,9 @@ class GP_Auto_Extract {
 			if ( $zip->open( $source_file ) === TRUE ) {
 				$zip->extractTo( $temp_dir );
 				$zip->close();
+			} else {
+				return '<div class="notice updated"><p>' . sprintf( __('Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
+;
 			}
 
 			$makepot = new MakePOT;
