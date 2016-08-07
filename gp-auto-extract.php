@@ -28,6 +28,70 @@ class GP_Auto_Extract {
 
 		// Add the admin page to the WordPress settings menu.
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 10, 1 );
+		
+		// If the user has write permissions to the projects, add the auto extract option to the projects menu.
+		if( GP::$permission->user_can( wp_get_current_user(), 'write', 'project' ) ) {
+			add_action( 'gp_project_actions', array( $this, 'gp_project_actions'), 10, 2 );
+		}
+
+		// We can't use the filter in the defaults route code because plugins don't load until after
+		// it has already run, so instead add the routes directly to the global GP_Router object.
+		GP::$router->add( "/auto-extract/(.+?)", array( $this, 'auto_extract' ), 'get' );
+		GP::$router->add( "/auto-extract/(.+?)", array( $this, 'auto_extract' ), 'post' );
+	}
+	
+	// This function is here as placeholder to support adding the auto extract option to the router.
+	// Without this placeholder there is a fatal error generated.
+	public function before_request() {
+	}
+
+	// This function handles the actual auto extract passed in by the router for the projects menu.
+	public function auto_extract( $project_path ) {
+		// First let's ensure we have decoded the project path for use later.
+		$project_path = urldecode( $project_path );
+		
+		// Get the URL to the project for use later.
+		$url = gp_url_project( $project_path );
+
+		// Create a project class to use to get the project object.
+		$project_class = new GP_Project;
+		
+		// Get the project object from the project path that was passed in.
+		$project_obj = $project_class->by_path( $project_path );
+
+		if( GP::$permission->user_can( wp_get_current_user(), 'write', 'project', $project->id ) ) {
+			// Get the project settings.
+			$project_settings = (array)get_option( 'gp_auto_extract', array() );
+
+			// Since we're running on the front end we need to load the download_url() function from the wp-admin/includes directory.
+			include( ABSPATH . 'wp-admin/includes/file.php' );
+
+			// Extract the strings, the third parameter disables HTML formating of the returned messages as GP doesn't need them.
+			$message = $this->extract_project( $project_obj, $project_settings, false );
+		} else {
+			$message = 'You do not have rights to auto extract originals!';
+		}
+
+		gp_notice_set( $message );
+		
+		// Redirect back to the project home.
+		wp_redirect( $url );
+	}
+	
+	// This function is here as placeholder to support adding the auto extract option to the router.
+	// Without this placeholder there is a fatal error generated.
+	public function after_request() {
+	}
+
+	// This function adds the "Auto Extract" option to the projects menu.
+	public function gp_project_actions( $actions, $project ) {
+		$project_settings = (array)get_option( 'gp_auto_extract', array() );
+		
+		if( 'none' != $project_settings[ $project->id ][ 'type' ] ) {
+			$actions[] .= gp_link_get( gp_url( 'auto-extract/' . $project->slug), __('Auto Extract') );
+		}
+		
+		return $actions;
 	}
 	
 	private function delTree( $dir ) {
@@ -53,8 +117,9 @@ class GP_Auto_Extract {
 		add_options_page( __('GP Auto Extract'), __('GP Auto Extract'), 'manage_options', basename( __FILE__ ), array( $this, 'admin_page' ) );
 	}
 
-	private function extract_project( $project, $project_settings ) {
+	private function extract_project( $project, $project_settings, $format_message = true ) {
 		$url_name = sprintf( $this->source_type_templates[ $project_settings[ $project->id ][ 'type' ] ], $project_settings[ $project->id ][ 'setting' ] );
+
 		$source_file = download_url( $url_name );
 
 		if( ! is_wp_error( $source_file ) ) {
@@ -98,7 +163,9 @@ class GP_Auto_Extract {
 			
 			list( $originals_added, $originals_existing, $originals_fuzzied, $originals_obsoleted ) = GP::$original->import_for_project( $project, $translations );
 
-			$message = '<div class="notice updated"><p>';
+			if( true === $format_message ) {
+				$message = '<div class="notice updated"><p>';
+			}
 			
 			$message .= sprintf(
 				__( '%1$s new strings added, %2$s updated, %3$s fuzzied, and %4$s obsoleted in the "%5$s" project.' ),
@@ -109,9 +176,19 @@ class GP_Auto_Extract {
 				$project->name
 			);
 			
-			$message .= '</p></div>';
+			if( true === $format_message ) {
+				$message .= '</p></div>';
+			}
 		} else {
-			$message = '<div class="notice updated"><p>' . sprintf( __('Failed to download "%s".' ), $url_name ) . '</p></div>';
+			if( true === $format_message ) {
+				$message = '<div class="notice updated"><p>';
+			}
+
+			$message .= sprintf( __('Failed to download "%s".' ), $url_name ) . '</p></div>';
+
+			if( true === $format_message ) {
+				$message .= '</p></div>';
+			}
 		}
 
 		return $message;
