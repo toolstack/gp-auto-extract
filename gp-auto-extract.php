@@ -146,9 +146,21 @@ class GP_Auto_Extract {
 				return '<div class="notice updated"><p>' . sprintf( __('Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
 			}
 
+			$src_dir = $temp_dir;
+			
+			// Check to see if there is only a single directory in the resulting zip extract root directory, if so, make it the root of the makepot call.
+			$src_files = scandir( $src_dir );
+			
+			// If there are exactly three files in the list ( '.', '..' and something else ) then check the third one and if it's a directory, make it he new $src_dir.
+			if( count( $src_files ) == 3 ) {
+				if( is_dir( $src_dir . '/' . $src_files[2] ) ) {
+					$src_dir .= '/' . $src_files[2];
+				}
+			}
+			
 			$makepot = new MakePOT;
 			
-			$makepot->generic( $temp_dir, $temp_pot );
+			$makepot->generic( $src_dir, $temp_pot );
 			
 			$format = gp_array_get( GP::$formats, gp_post( 'format', 'po' ), null );
 
