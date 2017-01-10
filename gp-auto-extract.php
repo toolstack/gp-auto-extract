@@ -87,7 +87,7 @@ class GP_Auto_Extract {
 	public function gp_project_actions( $actions, $project ) {
 		$project_settings = (array)get_option( 'gp_auto_extract', array() );
 		
-		if( 'none' != $project_settings[ $project->id ][ 'type' ] ) {
+		if( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' != $project_settings[ $project->id ][ 'type' ] ) {
 			$actions[] .= gp_link_get( gp_url( 'auto-extract/' . $project->slug), __('Auto Extract') );
 		}
 		
