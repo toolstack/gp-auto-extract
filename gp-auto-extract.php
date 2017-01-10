@@ -11,7 +11,16 @@ License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-class GP_Auto_Extract {
+/*
+ * Ok, we're going to cheat a little bit here and create our main class as an extension of the GP_Route_Main class.
+ *
+ * This let's us use it for both the main class of our plugin AND the class to handle the route for the front end
+ * menu item in the projects menu.
+ *
+ * If we didn't do this we'd either have to create a second class to use to extend GP_Route_Main or create several
+ * stub functions to mimic the GP_Route class that the GP Router needs to function correctly.
+ */
+class GP_Auto_Extract extends GP_Route_Main {
 	public $id = 'gp-auot-extract';
 
 	private	$source_types;
@@ -40,11 +49,6 @@ class GP_Auto_Extract {
 		GP::$router->add( "/auto-extract/(.+?)", array( $this, 'auto_extract' ), 'post' );
 	}
 	
-	// This function is here as placeholder to support adding the auto extract option to the router.
-	// Without this placeholder there is a fatal error generated.
-	public function before_request() {
-	}
-
 	// This function handles the actual auto extract passed in by the router for the projects menu.
 	public function auto_extract( $project_path ) {
 		// First let's ensure we have decoded the project path for use later.
@@ -78,11 +82,6 @@ class GP_Auto_Extract {
 		wp_redirect( $url );
 	}
 	
-	// This function is here as placeholder to support adding the auto extract option to the router.
-	// Without this placeholder there is a fatal error generated.
-	public function after_request() {
-	}
-
 	// This function adds the "Auto Extract" option to the projects menu.
 	public function gp_project_actions( $actions, $project ) {
 		$project_settings = (array)get_option( 'gp_auto_extract', array() );
@@ -159,6 +158,10 @@ class GP_Auto_Extract {
 			}
 			
 			$makepot = new MakePOT;
+			
+			// Fudge the project name and version so the makepot call doesn't generate warnings about them.
+			$makepot->meta['generic']['package-name'] = $project->name;
+			$makepot->meta['generic']['package-version'] = 'trunk';
 			
 			$makepot->generic( $src_dir, $temp_pot );
 			
