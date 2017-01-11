@@ -96,7 +96,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 		// Get the project object from the project path that was passed in.
 		$project_obj = $project_class->by_path( $project_path );
 
-		if( GP::$permission->user_can( wp_get_current_user(), 'write', 'project', $project->id ) ) {
+		if( GP::$permission->user_can( wp_get_current_user(), 'write', 'project', $project_obj->id ) ) {
 			// Get the project settings.
 			$project_settings = (array)get_option( 'gp_auto_extract', array() );
 
@@ -189,6 +189,8 @@ class GP_Auto_Extract extends GP_Route_Main {
 			remove_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
 		}
 
+		$message = '';
+
 		if( ! is_wp_error( $source_file ) ) {
 
 			include( dirname( __FILE__ ) . '/include/extract/makepot.php' );
@@ -263,7 +265,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			list( $originals_added, $originals_existing, $originals_fuzzied, $originals_obsoleted ) = GP::$original->import_for_project( $project, $translations );
 
 			if( true === $format_message ) {
-				$message = '<div class="notice updated"><p>';
+				$message .= '<div class="notice updated"><p>';
 			}
 
 			$message .= sprintf(
@@ -280,7 +282,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			}
 		} else {
 			if( true === $format_message ) {
-				$message = '<div class="notice updated"><p>';
+				$message .= '<div class="notice updated"><p>';
 			}
 
 			$message .= sprintf( __('Failed to download "%s".' ), $url_name ) . '</p></div>';
