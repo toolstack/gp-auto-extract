@@ -319,15 +319,15 @@ class GP_Auto_Extract extends GP_Route_Main {
 
 		foreach( $projects as $project ) {
 			if( array_key_exists( 'save_' . $project->id, $_POST ) ) {
-				$project_settings[ $project->id ]['type']                = $_POST[ 'source_type_' . $project->id ];
-				$project_settings[ $project->id ]['setting']             = $_POST[ 'setting_' . $project->id ];
-                $project_settings[ $project->id ]['branch']              = $_POST[ 'branch_' . $project->id ];
-                $project_settings[ $project->id ]['use_http_basic_auth'] = $_POST[ 'use_http_basic_auth_' . $project->id ];
-                $project_settings[ $project->id ]['http_auth_username']  = $_POST[ 'http_auth_username_' . $project->id ];
-                $project_settings[ $project->id ]['http_auth_password']  = $_POST[ 'http_auth_password_' . $project->id ];
-                $project_settings[ $project->id ]['skip_makepot']        = $_POST[ 'skip_makepot_' . $project->id ];
-                $project_settings[ $project->id ]['import_format']       = $_POST[ 'import_format_' . $project->id ];
-                $project_settings[ $project->id ]['import_file']         = $_POST[ 'import_file_' . $project->id ];
+				$project_settings[ $project->id ]['type']                = filter_input( INPUT_POST, 'source_type_' . $project->id );
+				$project_settings[ $project->id ]['setting']             = filter_input( INPUT_POST, 'setting_' . $project->id );
+                $project_settings[ $project->id ]['branch']              = filter_input( INPUT_POST, 'branch_' . $project->id );
+                $project_settings[ $project->id ]['use_http_basic_auth'] = filter_input( INPUT_POST, 'use_http_basic_auth_' . $project->id );
+                $project_settings[ $project->id ]['http_auth_username']  = filter_input( INPUT_POST, 'http_auth_username_' . $project->id );
+                $project_settings[ $project->id ]['http_auth_password']  = filter_input( INPUT_POST, 'http_auth_password_' . $project->id );
+                $project_settings[ $project->id ]['skip_makepot']        = filter_input( INPUT_POST, 'skip_makepot_' . $project->id );
+                $project_settings[ $project->id ]['import_format']       = filter_input( INPUT_POST, 'import_format_' . $project->id );
+                $project_settings[ $project->id ]['import_file']         = filter_input( INPUT_POST, 'import_file_' . $project->id );
 
 				update_option( 'gp_auto_extract', $project_settings );
 			}
