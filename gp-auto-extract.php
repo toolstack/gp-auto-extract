@@ -224,10 +224,6 @@ class GP_Auto_Extract extends GP_Route_Main {
 					$src_dir .= '/' . $src_files[2];
 				}
 			}
-			// Fudge the project name and version so the makepot call doesn't generate warnings about them.
-			$makepot->meta['generic']['package-name'] = $project->name;
-			$makepot->meta['generic']['package-version'] = 'trunk';
-
 
 			$skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
 			$import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
@@ -242,6 +238,10 @@ class GP_Auto_Extract extends GP_Route_Main {
 			} else {
 
 				$makepot = new MakePOT;
+
+				// Fudge the project name and version so the makepot call doesn't generate warnings about them.
+				$makepot->meta['generic']['package-name'] = $project->name;
+				$makepot->meta['generic']['package-version'] = 'trunk';
 
 				$makepot->generic( $src_dir, $temp_pot );
 
