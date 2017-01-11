@@ -376,19 +376,21 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$source_type = 'none';
 		$setting = '';
 
-		if( array_key_exists( $project->id, $project_settings ) ) {
+		if ( array_key_exists( $project->id, $project_settings ) ) {
 			$current_project = $project_settings[ $project->id ];
-
-			$source_type         = array_key_exists( 'type', $current_project ) ? $current_project['type'] : 'none';
-			$setting             = array_key_exists( 'setting', $current_project ) ? $current_project['setting'] : '';
-			$branch              = array_key_exists( 'branch', $current_project ) ? $current_project['branch'] : '';
-			$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
-			$http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
-			$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
-			$skip_makepot        = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
-			$import_format       = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
-			$import_file         = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
+		} else {
+			$current_project = $empty_project;
 		}
+
+		$source_type         = array_key_exists( 'type', $current_project ) ? $current_project['type'] : 'none';
+		$setting             = array_key_exists( 'setting', $current_project ) ? $current_project['setting'] : '';
+		$branch              = array_key_exists( 'branch', $current_project ) ? $current_project['branch'] : '';
+		$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
+		$http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
+		$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
+		$skip_makepot        = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
+		$import_format       = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
+		$import_file         = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
 
 		$row_actions = '';
 		$row_actions .= sprintf(
