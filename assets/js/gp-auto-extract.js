@@ -55,5 +55,10 @@ jQuery( document ).ready( function() {
 		$form.append( $field );
 
 		$form.submit();
+		return false;
+	} );
+
+	jQuery( '.editinline' ).click( function() {
+		return false;
 	} );
 } );
