@@ -119,7 +119,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 	// Without this placeholder there is a fatal error generated.
 	public function after_request() {
 	}
-	
+
 	// This function adds the "Auto Extract" option to the projects menu.
 	public function gp_project_actions( $actions, $project ) {
 		$project_settings = (array)get_option( 'gp_auto_extract', array() );
@@ -172,9 +172,11 @@ class GP_Auto_Extract extends GP_Route_Main {
             $project_settings[ $project->id ]['branch'] ?: 'master'
         );
 
-        $use_http_basic_auth = $project_settings[ $project->id ]['use_http_basic_auth'];
-        $http_auth_username  = $project_settings[ $project->id ]['http_auth_username'];
-        $http_auth_password  = $project_settings[ $project->id ]['http_auth_password'];
+        $current_project = $project_settings[ $project->id ];
+
+        $use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
+        $http_auth_username  = array_key_exists( 'http_auth_usernamehttp_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
+        $http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
 
         if ( 'on' === $use_http_basic_auth ) {
             $this->url_credentials[ $url_name ] = $http_auth_username . ':' . $http_auth_password;
@@ -225,11 +227,11 @@ class GP_Auto_Extract extends GP_Route_Main {
 			// Fudge the project name and version so the makepot call doesn't generate warnings about them.
 			$makepot->meta['generic']['package-name'] = $project->name;
 			$makepot->meta['generic']['package-version'] = 'trunk';
-			
 
-            $skip_makepot  = $project_settings[ $project->id ]['skip_makepot'];
-            $import_format = $project_settings[ $project->id ]['import_format'];
-            $import_file   = $project_settings[ $project->id ]['import_file'];
+
+            $skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
+            $import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
+            $import_file   = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
 
             if ( 'on' === $skip_makepot ) {
 
@@ -373,15 +375,17 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$setting = '';
 
 		if( array_key_exists( $project->id, $project_settings ) ) {
-			$source_type         = $project_settings[ $project->id ]['type'];
-			$setting             = $project_settings[ $project->id ]['setting'];
-            $branch              = $project_settings[ $project->id ]['branch'];
-            $use_http_basic_auth = $project_settings[ $project->id ]['use_http_basic_auth'] ?: false;
-            $http_auth_username  = $project_settings[ $project->id ]['http_auth_username'];
-            $http_auth_password  = $project_settings[ $project->id ]['http_auth_password'];
-            $skip_makepot        = $project_settings[ $project->id ]['skip_makepot'] ?: false;
-            $import_format       = $project_settings[ $project->id ]['import_format'];
-            $import_file         = $project_settings[ $project->id ]['import_file'];
+            $current_project = $project_settings[ $project->id ];
+
+			$source_type         = array_key_exists( 'type', $current_project ) ? $current_project['type'] : 'none';
+			$setting             = array_key_exists( 'setting', $current_project ) ? $current_project['setting'] : '';
+            $branch              = array_key_exists( 'branch', $current_project ) ? $current_project['branch'] : '';
+            $use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
+            $http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
+            $http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
+            $skip_makepot        = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
+            $import_format       = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
+            $import_file         = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
 		}
 
 		$row_actions = '';
