@@ -23,22 +23,22 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 class GP_Auto_Extract extends GP_Route_Main {
 	public $id = 'gp-auto-extract';
 
-	private	$source_types;
+	private $source_types;
 	private $source_type_templates;
-    private $url_credentials = array();
+	private $url_credentials = array();
 
 	public function __construct() {
 		$this->source_types = array( 'none' => __( 'none' ), 'github' => __( 'GitHub' ), 'wordpress' => __( 'WordPress.org' ), 'custom' => __( 'Custom' ) );
 		$this->source_type_templates = array(
-											'none' 		=> '',
-											'github' 	=> 'https://github.com/%s/archive/%s.zip',
-											'wordpress' => 'https://downloads.wordpress.org/plugin/%s.zip',
-											'custom' 	=> '%s',
-										);
+			'none'      => '',
+			'github'    => 'https://github.com/%s/archive/%s.zip',
+			'wordpress' => 'https://downloads.wordpress.org/plugin/%s.zip',
+			'custom'    => '%s',
+		);
 
 		// Add the admin page to the WordPress settings menu.
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 10, 1 );
-        add_action( 'admin_enqueue_scripts', array( $this, 'load_custom_wp_admin_style' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_custom_wp_admin_style' ) );
 
 		// If the user has write permissions to the projects, add the auto extract option to the projects menu.
 		if( GP::$permission->user_can( wp_get_current_user(), 'write', 'project' ) ) {
@@ -52,29 +52,29 @@ class GP_Auto_Extract extends GP_Route_Main {
 	}
 
 	public function load_custom_wp_admin_style( $hook ) {
-            // Load only on ?page=gp-auto-extract.php
-            if ( $hook != 'settings_page_gp-auto-extract' ) {
-                return;
-            }
-            wp_enqueue_style( 'gp-auto-extract-css', plugins_url('assets/css/gp-auto-extract.css', __FILE__) );
+			// Load only on ?page=gp-auto-extract.php
+			if ( $hook != 'settings_page_gp-auto-extract' ) {
+				return;
+			}
+			wp_enqueue_style( 'gp-auto-extract-css', plugins_url('assets/css/gp-auto-extract.css', __FILE__) );
 
-            wp_register_script( 'gp-auto-extract-js', plugins_url('assets/js/gp-auto-extract.js', __FILE__) );
-            $translation_array = array(
-                'passwords' => array(
-                    'none' => '',
-                    'github' => __( 'or Personal Access Token' ),
-                    'wordpress' => '',
-                    'custom' => '',
-                ),
-                'settings' => array(
-                    'none' => '',
-                    'github' => __( 'username/repository' ),
-                    'wordpress' => __( 'plugin-or-theme-slug' ),
-                    'custom' => __( 'url for a valid archive with source files' ),
-                ),
-            );
-            wp_localize_script( 'gp-auto-extract-js', 'gpae', $translation_array );
-            wp_enqueue_script( 'gp-auto-extract-js' );
+			wp_register_script( 'gp-auto-extract-js', plugins_url('assets/js/gp-auto-extract.js', __FILE__) );
+			$translation_array = array(
+				'passwords' => array(
+					'none' => '',
+					'github' => __( 'or Personal Access Token' ),
+					'wordpress' => '',
+					'custom' => '',
+				),
+				'settings' => array(
+					'none' => '',
+					'github' => __( 'username/repository' ),
+					'wordpress' => __( 'plugin-or-theme-slug' ),
+					'custom' => __( 'url for a valid archive with source files' ),
+				),
+			);
+			wp_localize_script( 'gp-auto-extract-js', 'gpae', $translation_array );
+			wp_enqueue_script( 'gp-auto-extract-js' );
 	}
 
 	// This function is here as placeholder to support adding the auto extract option to the router.
@@ -154,40 +154,40 @@ class GP_Auto_Extract extends GP_Route_Main {
 		add_options_page( __('GP Auto Extract'), __('GP Auto Extract'), 'manage_options', basename( __FILE__ ), array( $this, 'admin_page' ) );
 	}
 
-    public function authenticate_download( $r, $url) {
-        if ( array_key_exists( $url, $this->url_credentials ) ) {
-            if ( ! is_array( $r['headers'] ) ) {
-                $r['headers'] = array();
-            };
-            $r['headers']['Authorization'] = 'Basic ' . base64_encode( $this->url_credentials[ $url ] );
-            $r['redirection'] = 1;
-        }
-        return $r;
-    }
+	public function authenticate_download( $r, $url) {
+		if ( array_key_exists( $url, $this->url_credentials ) ) {
+			if ( ! is_array( $r['headers'] ) ) {
+				$r['headers'] = array();
+			};
+			$r['headers']['Authorization'] = 'Basic ' . base64_encode( $this->url_credentials[ $url ] );
+			$r['redirection'] = 1;
+		}
+		return $r;
+	}
 
 	private function extract_project( $project, $project_settings, $format_message = true ) {
 		$url_name = sprintf(
-            $this->source_type_templates[ $project_settings[ $project->id ]['type'] ],
-            $project_settings[ $project->id ]['setting'],
-            $project_settings[ $project->id ]['branch'] ?: 'master'
-        );
+			$this->source_type_templates[ $project_settings[ $project->id ]['type'] ],
+			$project_settings[ $project->id ]['setting'],
+			$project_settings[ $project->id ]['branch'] ?: 'master'
+		);
 
-        $current_project = $project_settings[ $project->id ];
+		$current_project = $project_settings[ $project->id ];
 
-        $use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
-        $http_auth_username  = array_key_exists( 'http_auth_usernamehttp_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
-        $http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
+		$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
+		$http_auth_username  = array_key_exists( 'http_auth_usernamehttp_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
+		$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
 
-        if ( 'on' === $use_http_basic_auth ) {
-            $this->url_credentials[ $url_name ] = $http_auth_username . ':' . $http_auth_password;
-            add_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
-        }
+		if ( 'on' === $use_http_basic_auth ) {
+			$this->url_credentials[ $url_name ] = $http_auth_username . ':' . $http_auth_password;
+			add_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
+		}
 
 		$source_file = download_url( $url_name );
 
-        if ( $use_http_basic_auth ) {
-            remove_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
-        }
+		if ( $use_http_basic_auth ) {
+			remove_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
+		}
 
 		if( ! is_wp_error( $source_file ) ) {
 
@@ -229,29 +229,29 @@ class GP_Auto_Extract extends GP_Route_Main {
 			$makepot->meta['generic']['package-version'] = 'trunk';
 
 
-            $skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
-            $import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
-            $import_file   = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
+			$skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
+			$import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
+			$import_file   = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
 
-            if ( 'on' === $skip_makepot ) {
+			if ( 'on' === $skip_makepot ) {
 
-                $format = gp_array_get( GP::$formats, $import_format, null );
+				$format = gp_array_get( GP::$formats, $import_format, null );
 
-                $pot_file = $format->read_originals_from_file( $src_dir . ( $import_file[0] == '/' ? '' : '/' ) . $import_file );
+				$pot_file = $format->read_originals_from_file( $src_dir . ( $import_file[0] == '/' ? '' : '/' ) . $import_file );
 
-            } else {
+			} else {
 
-                $makepot = new MakePOT;
+				$makepot = new MakePOT;
 
-                $makepot->generic( $src_dir, $temp_pot );
+				$makepot->generic( $src_dir, $temp_pot );
 
-                $format = gp_array_get( GP::$formats, gp_post( 'format', 'po' ), null );
+				$format = gp_array_get( GP::$formats, gp_post( 'format', 'po' ), null );
 
-                $pot_file = $temp_pot;
+				$pot_file = $temp_pot;
 
-            }
+			}
 
-            $translations = $format->read_originals_from_file( $pot_file );
+			$translations = $format->read_originals_from_file( $pot_file );
 
 			$this->delTree( $temp_dir );
 			unlink( $temp_pot );
@@ -298,17 +298,17 @@ class GP_Auto_Extract extends GP_Route_Main {
 		// If the current user can't manage options, display a message and return immediately.
 		if( ! current_user_can( 'manage_options' ) ) { _e('You do not have permissions to this page!'); return; }
 
-        $empty_project = array(
-            'type' => 'none',
-            'setting' => '',
-            'branch' => '',
-            'use_http_basic_auth' => false,
-            'http_auth_username' => '',
-            'http_auth_password' => '',
-            'skip_makepot' => false,
-            'import_format' => '',
-            'import_file' => '',
-        );
+		$empty_project = array(
+			'type' => 'none',
+			'setting' => '',
+			'branch' => '',
+			'use_http_basic_auth' => false,
+			'http_auth_username' => '',
+			'http_auth_password' => '',
+			'skip_makepot' => false,
+			'import_format' => '',
+			'import_file' => '',
+		);
 
 
 		$projects = GP::$project->all();
@@ -321,13 +321,13 @@ class GP_Auto_Extract extends GP_Route_Main {
 			if( array_key_exists( 'save_' . $project->id, $_POST ) ) {
 				$project_settings[ $project->id ]['type']                = filter_input( INPUT_POST, 'source_type_' . $project->id );
 				$project_settings[ $project->id ]['setting']             = filter_input( INPUT_POST, 'setting_' . $project->id );
-                $project_settings[ $project->id ]['branch']              = filter_input( INPUT_POST, 'branch_' . $project->id );
-                $project_settings[ $project->id ]['use_http_basic_auth'] = filter_input( INPUT_POST, 'use_http_basic_auth_' . $project->id );
-                $project_settings[ $project->id ]['http_auth_username']  = filter_input( INPUT_POST, 'http_auth_username_' . $project->id );
-                $project_settings[ $project->id ]['http_auth_password']  = filter_input( INPUT_POST, 'http_auth_password_' . $project->id );
-                $project_settings[ $project->id ]['skip_makepot']        = filter_input( INPUT_POST, 'skip_makepot_' . $project->id );
-                $project_settings[ $project->id ]['import_format']       = filter_input( INPUT_POST, 'import_format_' . $project->id );
-                $project_settings[ $project->id ]['import_file']         = filter_input( INPUT_POST, 'import_file_' . $project->id );
+				$project_settings[ $project->id ]['branch']              = filter_input( INPUT_POST, 'branch_' . $project->id );
+				$project_settings[ $project->id ]['use_http_basic_auth'] = filter_input( INPUT_POST, 'use_http_basic_auth_' . $project->id );
+				$project_settings[ $project->id ]['http_auth_username']  = filter_input( INPUT_POST, 'http_auth_username_' . $project->id );
+				$project_settings[ $project->id ]['http_auth_password']  = filter_input( INPUT_POST, 'http_auth_password_' . $project->id );
+				$project_settings[ $project->id ]['skip_makepot']        = filter_input( INPUT_POST, 'skip_makepot_' . $project->id );
+				$project_settings[ $project->id ]['import_format']       = filter_input( INPUT_POST, 'import_format_' . $project->id );
+				$project_settings[ $project->id ]['import_file']         = filter_input( INPUT_POST, 'import_file_' . $project->id );
 
 				update_option( 'gp_auto_extract', $project_settings );
 			}
@@ -362,8 +362,8 @@ class GP_Auto_Extract extends GP_Route_Main {
 				<th><?php _e( 'Project' ); ?></th>
 				<th><?php _e( 'Source Type' ); ?></th>
 				<th><?php _e( 'Setting' ); ?></th>
-                <th><?php _e( 'Branch' ); ?></th>
-                <th><?php _e( 'Authorization' ); ?></th>
+				<th><?php _e( 'Branch' ); ?></th>
+				<th><?php _e( 'Authorization' ); ?></th>
 			</tr>
 			</thead>
 
@@ -375,154 +375,154 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$setting = '';
 
 		if( array_key_exists( $project->id, $project_settings ) ) {
-            $current_project = $project_settings[ $project->id ];
+			$current_project = $project_settings[ $project->id ];
 
 			$source_type         = array_key_exists( 'type', $current_project ) ? $current_project['type'] : 'none';
 			$setting             = array_key_exists( 'setting', $current_project ) ? $current_project['setting'] : '';
-            $branch              = array_key_exists( 'branch', $current_project ) ? $current_project['branch'] : '';
-            $use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
-            $http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
-            $http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
-            $skip_makepot        = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
-            $import_format       = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
-            $import_file         = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
+			$branch              = array_key_exists( 'branch', $current_project ) ? $current_project['branch'] : '';
+			$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
+			$http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
+			$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
+			$skip_makepot        = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
+			$import_format       = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
+			$import_file         = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
 		}
 
 		$row_actions = '';
-        $row_actions .= sprintf(
-            '<span class="edit"><a href="#" class="editinline" data-project-id="%s" aria-label="%s">%s</a></span>',
-            $project->id,
-            /* translators: %s: project name */
-            esc_attr( sprintf( __( 'Edit project &#8220;%s&#8221;' ), $project->name ) ),
-            __( 'Edit' )
-        );
+		$row_actions .= sprintf(
+			'<span class="edit"><a href="#" class="editinline" data-project-id="%s" aria-label="%s">%s</a></span>',
+			$project->id,
+			/* translators: %s: project name */
+			esc_attr( sprintf( __( 'Edit project &#8220;%s&#8221;' ), $project->name ) ),
+			__( 'Edit' )
+		);
 
-        if( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' != $project_settings[ $project->id ][ 'type' ] ) {
-            $row_actions .= sprintf(
-                ' | <span class="trash"><a href="#" class="submitdelete reset-project" id="delete_%s" aria-label="%s">%s</a></span>',
-                $project->id,
-                /* translators: %s: project name */
-                esc_attr( sprintf( __( 'Reset &#8220;%s&#8221;' ), $project->name ) ),
-                __( 'Reset' )
-            );
+		if( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' != $project_settings[ $project->id ][ 'type' ] ) {
+			$row_actions .= sprintf(
+				' | <span class="trash"><a href="#" class="submitdelete reset-project" id="delete_%s" aria-label="%s">%s</a></span>',
+				$project->id,
+				/* translators: %s: project name */
+				esc_attr( sprintf( __( 'Reset &#8220;%s&#8221;' ), $project->name ) ),
+				__( 'Reset' )
+			);
 
-            $row_actions .= sprintf(
-                ' | <span class="extract"><a href="#" class="extract-project" id="extract_%s" aria-label="%s">%s</a></span>',
-                $project->id,
-                /* translators: %s: project name */
-                esc_attr( sprintf( __( 'Extract &#8220;%s&#8221;' ), $project->name ) ),
-                __( 'Extract' )
-            );
-        }
+			$row_actions .= sprintf(
+				' | <span class="extract"><a href="#" class="extract-project" id="extract_%s" aria-label="%s">%s</a></span>',
+				$project->id,
+				/* translators: %s: project name */
+				esc_attr( sprintf( __( 'Extract &#8220;%s&#8221;' ), $project->name ) ),
+				__( 'Extract' )
+			);
+		}
 
-        if ( 'github' === $source_type ) {
-            $branch_label = $branch ?: 'master';
-            $use_http_basic_auth_label = $use_http_basic_auth ? __( 'Enabled' ) : __( 'Disabled' );
-        } elseif ( 'wordpress' === $source_type ) {
-            $branch_label = __( 'N/A' );
-            $use_http_basic_auth_label = __( 'N/A' );
-        } elseif ( 'custom' === $source_type ) {
-            $branch_label = __( 'N/A' );
-            $use_http_basic_auth_label = $use_http_basic_auth ? __( 'Enabled' ) : __( 'Disabled' );
-        } else {
-            $branch_label = '';
-            $use_http_basic_auth_label = '';
-        }
+		if ( 'github' === $source_type ) {
+			$branch_label = $branch ?: 'master';
+			$use_http_basic_auth_label = $use_http_basic_auth ? __( 'Enabled' ) : __( 'Disabled' );
+		} elseif ( 'wordpress' === $source_type ) {
+			$branch_label = __( 'N/A' );
+			$use_http_basic_auth_label = __( 'N/A' );
+		} elseif ( 'custom' === $source_type ) {
+			$branch_label = __( 'N/A' );
+			$use_http_basic_auth_label = $use_http_basic_auth ? __( 'Enabled' ) : __( 'Disabled' );
+		} else {
+			$branch_label = '';
+			$use_http_basic_auth_label = '';
+		}
 
-        ?>
-                <tr id="project-<?php echo esc_attr( $project->id ); ?>">
-                    <td class="title column-title has-row-actions column-primary">
-                        <strong><?php echo esc_html( $project->name ); ?></strong>
-                        <div class="row-actions"><?php echo $row_actions; ?></div>
-                    </td>
-                    <td><?php echo esc_html( $this->source_types[ $source_type ] ); ?></td>
-                    <td><?php echo esc_html( $setting ); ?></td>
-                    <td><?php echo esc_html( $branch_label ); ?></td>
-                    <td><?php echo esc_html( $use_http_basic_auth_label ); ?></td>
-                </tr>
-                <tr class="hidden"></tr>
-                <tr id="edit-project-<?php echo esc_attr( $project->id ); ?>" class="source-type-<?php echo esc_attr( $source_type ); ?> hidden inline-edit-row inline-edit-row-page inline-edit-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor">
-                    <td colspan="5" class="colspanchange">
-                        <fieldset class="inline-edit-col-left">
-                            <legend class="inline-edit-legend"><?php echo esc_html__( 'Edit' ); ?></legend>
-                            <div class="inline-edit-col">
-                                <label>
-                                    <span class="title"><?php echo esc_html__( 'Project' ); ?></span>
-                                    <span class="input-text-wrap"><strong><?php echo esc_html( $project->name ); ?></strong></span>
-                                </label>
-                                <label>
-                                    <span class="title"><?php echo esc_html__( 'Source Type' ); ?></span>
-                                    <select class="source_type" name="source_type_<?php echo esc_attr( $project->id ); ?>" id="source_type_<?php echo esc_attr( $project->id ); ?>">
-                                    <?php foreach ( $this->source_types as $id => $type ) { ?>
-                                        <option value="<?php echo esc_attr( $id ); ?>" <?php echo selected( $source_type, $id ); ?>><?echo esc_html( $type ); ?></option>;
-                                    <?php } ?>
-                                    </select>
-                                </label>
-                                <label class="hide-if-none">
-                                    <span class="title"><?php echo esc_html__( 'Setting' ); ?></span>
-                                    <span class="input-text-wrap"><input type="text" class="gpae-setting" name="setting_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $setting ); ?>"></span>
-                                </label>
-                                <div class="inline-edit-group wp-clearfix show-if-github">
-                                    <label class="alignleft">
-                                        <span class="title"><?php echo esc_html__( 'Branch/Tag' ); ?></span>
-                                        <span class="input-text-wrap"><input type="text" name="branch_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $branch ); ?>" placeholder="master"></span>
-                                    </label>
-                                </div>
-                                <div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress">
-                                    <label class="alignleft">
-                                        <input type="checkbox" name="use_http_basic_auth_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $use_http_basic_auth, 'on' ); ?> class="group-toggle" data-group="httpauth-<?php echo esc_attr( $project->id ); ?>">
-                                        <span class="checkbox-title"><?php echo esc_html__( 'Use HTTP Basic Authentication' ); ?></span>
-                                    </label>
-                                </div>
-                                <div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress hidden group-httpauth-<?php echo esc_attr( $project->id ); ?>">
-                                    <label class="alignleft">
-                                        <span class="title"><?php echo esc_html__( 'Username' ); ?></span>
-                                        <span class="input-text-wrap"><input type="text" name="http_auth_username_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $http_auth_username ); ?>"></span>
-                                    </label>
-                                    <label class="alignleft">
-                                        <span class="title"><?php echo esc_html__( 'Password' ); ?></span>
-                                        <span class="input-text-wrap"><input type="text" class="gpae-password" name="http_auth_password_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $http_auth_password ); ?>"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <fieldset class="inline-edit-col-right">
-                            <div class="inline-edit-col">
-                                <div class="inline-edit-group wp-clearfix hide-if-none">
-                                    <label class="alignleft">
-                                        <input type="checkbox" name="skip_makepot_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $skip_makepot, 'on' ); ?> class="group-toggle" data-group="makepot-<?php echo esc_attr( $project->id ); ?>">
-                                        <span class="checkbox-title"><?php echo esc_html__( 'Import from existing file' ); ?></span>
-                                    </label>
-                                </div>
-                                <div class="inline-edit-group wp-clearfix hide-if-none hidden group-makepot-<?php echo esc_attr( $project->id ); ?>">
-                                    <label class="alignleft">
-                                        <span class="title"><?php echo esc_html__( 'Format' ); ?></span>
-                                        <?php
-                                        $format_options = array();
-                                        foreach ( GP::$formats as $slug => $format ) {
-                                            $format_options[ $slug ] = $format->name;
-                                        }
-                                        echo gp_select( 'import_format_' . $project->id, $format_options, $import_format ?: 'po' );
-                                        ?>
-                                    </label>
-                                </div>
-                                <div class="inline-edit-group wp-clearfix hide-if-none hidden group-makepot-<?php echo esc_attr( $project->id ); ?>">
-                                    <label>
-                                        <span class="title"><?php echo esc_html__( 'File' ); ?></span>
-                                        <span class="input-text-wrap"><input type="text" name="import_file_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $import_file ); ?>" placeholder="<?php echo esc_attr__( 'path of file to import relative to repository or archive root' ); ?>"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <p class="submit inline-edit-save">
-                            <button type="button" class="button cancel alignleft" data-project-id="<? echo esc_attr( $project->id ); ?>"><?php echo esc_html( __( 'Cancel' ) ); ?></button>
-                            <input type="submit" name="save_<?php echo esc_attr( $project->id ); ?>" class="button button-primary save alignright" value="<?php echo esc_attr( __( 'Save' ) ); ?>"/>
-                            <br class="clear">
-                        </p>
-                    </td>
-                </tr>
-        <?php
-    }
+		?>
+				<tr id="project-<?php echo esc_attr( $project->id ); ?>">
+					<td class="title column-title has-row-actions column-primary">
+						<strong><?php echo esc_html( $project->name ); ?></strong>
+						<div class="row-actions"><?php echo $row_actions; ?></div>
+					</td>
+					<td><?php echo esc_html( $this->source_types[ $source_type ] ); ?></td>
+					<td><?php echo esc_html( $setting ); ?></td>
+					<td><?php echo esc_html( $branch_label ); ?></td>
+					<td><?php echo esc_html( $use_http_basic_auth_label ); ?></td>
+				</tr>
+				<tr class="hidden"></tr>
+				<tr id="edit-project-<?php echo esc_attr( $project->id ); ?>" class="source-type-<?php echo esc_attr( $source_type ); ?> hidden inline-edit-row inline-edit-row-page inline-edit-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor">
+					<td colspan="5" class="colspanchange">
+						<fieldset class="inline-edit-col-left">
+							<legend class="inline-edit-legend"><?php echo esc_html__( 'Edit' ); ?></legend>
+							<div class="inline-edit-col">
+								<label>
+									<span class="title"><?php echo esc_html__( 'Project' ); ?></span>
+									<span class="input-text-wrap"><strong><?php echo esc_html( $project->name ); ?></strong></span>
+								</label>
+								<label>
+									<span class="title"><?php echo esc_html__( 'Source Type' ); ?></span>
+									<select class="source_type" name="source_type_<?php echo esc_attr( $project->id ); ?>" id="source_type_<?php echo esc_attr( $project->id ); ?>">
+									<?php foreach ( $this->source_types as $id => $type ) { ?>
+										<option value="<?php echo esc_attr( $id ); ?>" <?php echo selected( $source_type, $id ); ?>><?echo esc_html( $type ); ?></option>;
+									<?php } ?>
+									</select>
+								</label>
+								<label class="hide-if-none">
+									<span class="title"><?php echo esc_html__( 'Setting' ); ?></span>
+									<span class="input-text-wrap"><input type="text" class="gpae-setting" name="setting_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $setting ); ?>"></span>
+								</label>
+								<div class="inline-edit-group wp-clearfix show-if-github">
+									<label class="alignleft">
+										<span class="title"><?php echo esc_html__( 'Branch/Tag' ); ?></span>
+										<span class="input-text-wrap"><input type="text" name="branch_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $branch ); ?>" placeholder="master"></span>
+									</label>
+								</div>
+								<div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress">
+									<label class="alignleft">
+										<input type="checkbox" name="use_http_basic_auth_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $use_http_basic_auth, 'on' ); ?> class="group-toggle" data-group="httpauth-<?php echo esc_attr( $project->id ); ?>">
+										<span class="checkbox-title"><?php echo esc_html__( 'Use HTTP Basic Authentication' ); ?></span>
+									</label>
+								</div>
+								<div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress hidden group-httpauth-<?php echo esc_attr( $project->id ); ?>">
+									<label class="alignleft">
+										<span class="title"><?php echo esc_html__( 'Username' ); ?></span>
+										<span class="input-text-wrap"><input type="text" name="http_auth_username_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $http_auth_username ); ?>"></span>
+									</label>
+									<label class="alignleft">
+										<span class="title"><?php echo esc_html__( 'Password' ); ?></span>
+										<span class="input-text-wrap"><input type="text" class="gpae-password" name="http_auth_password_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $http_auth_password ); ?>"></span>
+									</label>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset class="inline-edit-col-right">
+							<div class="inline-edit-col">
+								<div class="inline-edit-group wp-clearfix hide-if-none">
+									<label class="alignleft">
+										<input type="checkbox" name="skip_makepot_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $skip_makepot, 'on' ); ?> class="group-toggle" data-group="makepot-<?php echo esc_attr( $project->id ); ?>">
+										<span class="checkbox-title"><?php echo esc_html__( 'Import from existing file' ); ?></span>
+									</label>
+								</div>
+								<div class="inline-edit-group wp-clearfix hide-if-none hidden group-makepot-<?php echo esc_attr( $project->id ); ?>">
+									<label class="alignleft">
+										<span class="title"><?php echo esc_html__( 'Format' ); ?></span>
+										<?php
+										$format_options = array();
+										foreach ( GP::$formats as $slug => $format ) {
+											$format_options[ $slug ] = $format->name;
+										}
+										echo gp_select( 'import_format_' . $project->id, $format_options, $import_format ?: 'po' );
+										?>
+									</label>
+								</div>
+								<div class="inline-edit-group wp-clearfix hide-if-none hidden group-makepot-<?php echo esc_attr( $project->id ); ?>">
+									<label>
+										<span class="title"><?php echo esc_html__( 'File' ); ?></span>
+										<span class="input-text-wrap"><input type="text" name="import_file_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $import_file ); ?>" placeholder="<?php echo esc_attr__( 'path of file to import relative to repository or archive root' ); ?>"></span>
+									</label>
+								</div>
+							</div>
+						</fieldset>
+						<p class="submit inline-edit-save">
+							<button type="button" class="button cancel alignleft" data-project-id="<? echo esc_attr( $project->id ); ?>"><?php echo esc_html( __( 'Cancel' ) ); ?></button>
+							<input type="submit" name="save_<?php echo esc_attr( $project->id ); ?>" class="button button-primary save alignright" value="<?php echo esc_attr( __( 'Save' ) ); ?>"/>
+							<br class="clear">
+						</p>
+					</td>
+				</tr>
+		<?php
+	}
 ?>
 
 			</tbody>
