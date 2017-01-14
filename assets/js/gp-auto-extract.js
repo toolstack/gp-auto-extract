@@ -61,4 +61,8 @@ jQuery( document ).ready( function() {
 	jQuery( '.editinline' ).click( function() {
 		return false;
 	} );
+
+	jQuery( document ).on( 'click', '#TB_window .close', function() {
+		tb_remove();
+	} );
 } );

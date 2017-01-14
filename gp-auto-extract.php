@@ -112,6 +112,8 @@ class GP_Auto_Extract extends GP_Route_Main {
 		);
 		wp_localize_script( 'gp-auto-extract-js', 'gpae', $translation_array );
 		wp_enqueue_script( 'gp-auto-extract-js' );
+
+		add_thickbox();
 	}
 
 	/**
@@ -495,10 +497,12 @@ class GP_Auto_Extract extends GP_Route_Main {
 
 		if ( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings ) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' !== $project_settings[ $project->id ]['type'] ) {
 			$row_actions .= sprintf(
-				' | <span class="trash"><a href="" class="submitdelete reset-project" id="delete_%s" aria-label="%s">%s</a></span>',
+				//' | <span class="trash"><a href="" class="submitdelete reset-project" id="delete_%s" aria-label="%s">%s</a></span>',
+				' | <span class="trash"><a href="#TB_inline;height=130;width=380;inlineId=confirm-reset-%1$s" class="submitdelete thickbox" aria-label="%2$s" title="%3$s">%4$s</a></span>',
 				esc_attr( $project->id ),
 				/* translators: %s: project name */
 				esc_attr( sprintf( __( 'Reset &#8220;%s&#8221;' ), $project->name ) ),
+				__( 'Are you sure?' ),
 				__( 'Reset' )
 			);
 
@@ -533,6 +537,13 @@ class GP_Auto_Extract extends GP_Route_Main {
 							<?php
 							echo $row_actions;
 							?>
+							<div id="confirm-reset-<?php echo esc_attr( $project->id ); ?>" style="display:none;">
+								<p><?php printf( __( 'You will lose all project "%s" settings.' ), $project->name ); ?></p>
+								<p>
+									<button type="submit" class="button button-primary reset-project" id="delete_<?php echo esc_attr( $project->id ); ?>"><?php _e( 'Reset' ); ?></button>
+									<button type="button" class="button close" data-project-id="<?php echo esc_attr( $project->id ); ?>"><?php _e( 'Cancel' ); ?></button>
+								</p>
+							</div>
 						</div>
 					</td>
 					<td><?php echo $this->source_types[ $source_type ]; ?></td>
