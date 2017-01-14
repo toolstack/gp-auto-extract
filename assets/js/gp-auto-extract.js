@@ -16,6 +16,7 @@ jQuery( document ).ready( function() {
 			toggle_group( value );
 			jQuery( '.source_type' ).change();
 		} );
+		return false;
 	} );
 
 	jQuery( '.inline-edit-save .cancel' ).click( function() {
@@ -55,10 +56,6 @@ jQuery( document ).ready( function() {
 		$form.append( $field );
 
 		$form.submit();
-		return false;
-	} );
-
-	jQuery( '.editinline' ).click( function() {
 		return false;
 	} );
 
