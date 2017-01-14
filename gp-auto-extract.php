@@ -62,9 +62,9 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$this->source_types = array( 'none' => __( 'none' ), 'github' => __( 'GitHub' ), 'wordpress' => __( 'WordPress.org' ), 'custom' => __( 'Custom' ) );
 		$this->source_type_templates = array(
 			'none'      => '',
-			'github'    => 'https://github.com/%s/archive/%s.zip',
-			'wordpress' => 'https://downloads.wordpress.org/plugin/%s.zip',
-			'custom'    => '%s',
+			'github'    => 'https://github.com/%1$s/archive/%2$s.zip',
+			'wordpress' => 'https://downloads.wordpress.org/plugin/%1$s.zip',
+			'custom'    => '%1$s',
 		);
 		$this->url_credentials = array();
 
@@ -278,7 +278,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			} else {
 				unlink( $source_file );
 
-				return '<div class="notice updated"><p>' . sprintf( __( 'Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
+				return '<div class="notice error"><p>' . sprintf( __( 'Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
 			}
 
 			$src_dir = $temp_dir;
@@ -341,7 +341,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			unlink( $temp_pot );
 
 			if ( false === $translations ) {
-				return '<div class="notice updated"><p>' . __( 'Failed to read strings from source code.' ) . '</p></div>';
+				return '<div class="notice error"><p>' . __( 'Failed to read strings from source code.' ) . '</p></div>';
 			}
 
 			list( $originals_added, $originals_existing, $originals_fuzzied, $originals_obsoleted ) = GP::$original->import_for_project( $project, $translations );
