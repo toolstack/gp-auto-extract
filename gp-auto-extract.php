@@ -271,14 +271,17 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$current_project = $project_settings[ $project->id ];
 
 		$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
-		$http_auth_username  = array_key_exists( 'http_auth_usernamehttp_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
-		$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
-		if ( ! empty( $http_auth_password ) ) {
-			$http_auth_password = $this->decrypt_data( $http_auth_password );
-		}
 
 		if ( 'on' === $use_http_basic_auth ) {
+			$http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
+			$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
+
+			if ( ! empty( $http_auth_password ) ) {
+				$http_auth_password = $this->decrypt_data( $http_auth_password );
+			}
+
 			$this->url_credentials[ $url_name ] = $http_auth_username . ':' . $http_auth_password;
+
 			add_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
 		}
 
