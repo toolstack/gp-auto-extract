@@ -56,6 +56,22 @@ class GP_Auto_Extract extends GP_Route_Main {
 	private $url_credentials;
 
 	/**
+	 * Encryption key for passwords.
+	 *
+	 * @access private
+	 * @var String $encryption_key
+	 */
+	private $encryption_key;
+
+	/**
+	 * Encryption cypher for passwords.
+	 *
+	 * @access private
+	 * @var String $encryption_cypher
+	 */
+	private $encryption_cypher;
+
+	/**
 	 * Initialize the variables, hooks and setup GlotPress API routes.
 	 */
 	public function __construct() {
@@ -67,6 +83,18 @@ class GP_Auto_Extract extends GP_Route_Main {
 			'custom'    => '%1$s',
 		);
 		$this->url_credentials = array();
+
+		if ( defined( 'GP_AUTO_EXTRACT_ENCRYPT_KEY' ) ) {
+			$this->encryption_key = GP_AUTO_EXTRACT_ENCRYPT_KEY;
+		} else {
+			$this->encryption_key = substr( wp_salt(), 0, 32 );
+		}
+
+		if ( defined( 'GP_AUTO_EXTRACT_CYPHER' ) ) {
+			$this->encryption_cypher = GP_AUTO_EXTRACT_CYPHER;
+		} else {
+			$this->encryption_cypher = 'aes-256-cbc';
+		}
 
 		// Add the admin page to the WordPress settings menu.
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 10, 1 );
@@ -245,6 +273,9 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
 		$http_auth_username  = array_key_exists( 'http_auth_usernamehttp_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
 		$http_auth_password  = array_key_exists( 'http_auth_password', $current_project ) ? $current_project['http_auth_password'] : '';
+		if ( ! empty( $http_auth_password ) ) {
+			$http_auth_password = $this->decrypt_data( $http_auth_password );
+		}
 
 		if ( 'on' === $use_http_basic_auth ) {
 			$this->url_credentials[ $url_name ] = $http_auth_username . ':' . $http_auth_password;
@@ -380,6 +411,47 @@ class GP_Auto_Extract extends GP_Route_Main {
 	}
 
 	/**
+	 * This function encrypts data.
+	 *
+	 * @param String $data The data to be encrypted.
+	 * @return String Encrypted data.
+	 */
+	private function encrypt_data( $data ) {
+		$iv = openssl_random_pseudo_bytes( openssl_cipher_iv_length( $this->encryption_cypher ) );
+		$encrypted = openssl_encrypt( $data, $this->encryption_cypher, $this->encryption_key, 0, $iv ) . ':' . $iv;
+		return base64_encode( $encrypted );
+	}
+
+	/**
+	 * This function decrypts data.
+	 *
+	 * @param String $data The data to be decrypted.
+	 * @return String Decrypted data.
+	 */
+	private function decrypt_data( $data ) {
+		$parts = explode( ':', base64_decode( $data ), 2 );
+		if ( 2 !== count( $parts ) ) {
+			return $data;
+		}
+
+		$decrypted = openssl_decrypt( $parts[0], $this->encryption_cypher, $this->encryption_key, 0, $parts[1] );
+		return $decrypted;
+	}
+
+	/**
+	 * This function decrypts and return masked data.
+	 *
+	 * @param String $data The data to be decrypted and masked.
+	 * @param String $char Optional. The data to be decrypted and masked. Default '*'.
+	 * @return String Masked data.
+	 */
+	private function masked_data( $data, $char = '*' ) {
+		$decrypted = $this->decrypt_data( $data );
+		$masked = str_repeat( $char , strlen( $decrypted ) );
+		return $masked;
+	}
+
+	/**
 	 * This function displays the admin settings page in WordPress.
 	 */
 	public function admin_page() {
@@ -416,9 +488,31 @@ class GP_Auto_Extract extends GP_Route_Main {
 					$project_settings[ $project->id ]['type']                = filter_input( INPUT_POST, 'source_type_' . $project->id );
 					$project_settings[ $project->id ]['setting']             = filter_input( INPUT_POST, 'setting_' . $project->id );
 					$project_settings[ $project->id ]['branch']              = filter_input( INPUT_POST, 'branch_' . $project->id );
-					$project_settings[ $project->id ]['use_http_basic_auth'] = filter_input( INPUT_POST, 'use_http_basic_auth_' . $project->id );
-					$project_settings[ $project->id ]['http_auth_username']  = filter_input( INPUT_POST, 'http_auth_username_' . $project->id );
-					$project_settings[ $project->id ]['http_auth_password']  = filter_input( INPUT_POST, 'http_auth_password_' . $project->id );
+
+					$use_http_basic_auth = filter_input( INPUT_POST, 'use_http_basic_auth_' . $project->id );
+					if ( 'on' === $use_http_basic_auth ) {
+						$http_auth_username  = filter_input( INPUT_POST, 'http_auth_username_' . $project->id );
+						$http_auth_password  = filter_input( INPUT_POST, 'http_auth_password_' . $project->id );
+
+						$masked = $this->masked_data( $project_settings[ $project->id ]['http_auth_password'] );
+
+						if ( $http_auth_password === $masked ) {
+							$http_auth_password = $project_settings[ $project->id ]['http_auth_password'];
+						} elseif ( empty( $http_auth_password ) ) {
+							$http_auth_password = '';
+						} else {
+							$http_auth_password = $this->encrypt_data( $http_auth_password );
+						}
+					} else {
+						// Do not save any credentials if we don't need to use authentication.
+						$http_auth_username = '';
+						$http_auth_password = '';
+					}
+
+					$project_settings[ $project->id ]['use_http_basic_auth'] = $use_http_basic_auth;
+					$project_settings[ $project->id ]['http_auth_username']  = $http_auth_username;
+					$project_settings[ $project->id ]['http_auth_password']  = $http_auth_password;
+
 					$project_settings[ $project->id ]['skip_makepot']        = filter_input( INPUT_POST, 'skip_makepot_' . $project->id );
 					$project_settings[ $project->id ]['import_format']       = filter_input( INPUT_POST, 'import_format_' . $project->id );
 					$project_settings[ $project->id ]['import_file']         = filter_input( INPUT_POST, 'import_file_' . $project->id );
@@ -592,7 +686,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 									</label>
 									<label class="alignleft">
 										<span class="title"><?php _e( 'Password' ); ?></span>
-										<span class="input-text-wrap"><input type="text" class="gpae-password" name="http_auth_password_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $http_auth_password ); ?>"></span>
+										<span class="input-text-wrap"><input type="password" class="gpae-password" name="http_auth_password_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" data-masked-value="<?php echo esc_attr( $this->masked_data( $http_auth_password, '*' ) ); ?>"></span>
 									</label>
 								</div>
 							</div>

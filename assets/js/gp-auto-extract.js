@@ -62,4 +62,23 @@ jQuery( document ).ready( function() {
 	jQuery( document ).on( 'click', '#TB_window .close', function() {
 		tb_remove();
 	} );
+
+	jQuery( '.gpae-password' ).each( function( index, value ) {
+		var $this = jQuery( this );
+		$this.val( $this.data( 'masked-value' ) );
+	} );
+
+	jQuery( '.gpae-password' ).focus( function() {
+		var $this = jQuery( this );
+		if ( $this.val() === $this.data( 'masked-value' ) ) {
+			$this.val( '' );
+		}
+	} );
+
+	jQuery( '.gpae-password' ).blur(function() {
+		var $this = jQuery( this );
+		if ( $this.val() === '' ) {
+			$this.val( $this.data( 'masked-value' ) );
+		}
+	} );
 } );
