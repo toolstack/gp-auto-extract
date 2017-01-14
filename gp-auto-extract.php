@@ -48,12 +48,12 @@ class GP_Auto_Extract extends GP_Route_Main {
 	private $source_type_templates;
 
 	/**
-	 * Cache of username and password for HTTP Basic Authentication filter.
+	 * Cache of HTTP headers to be used in filter.
 	 *
 	 * @access private
-	 * @var Array $url_credentials
+	 * @var Array $url_headers
 	 */
-	private $url_credentials;
+	private $url_headers;
 
 	/**
 	 * Encryption key for passwords.
@@ -82,7 +82,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			'wordpress' => 'https://downloads.wordpress.org/plugin/%1$s.zip',
 			'custom'    => '%1$s',
 		);
-		$this->url_credentials = array();
+		$this->url_headers = array();
 
 		if ( defined( 'GP_AUTO_EXTRACT_ENCRYPT_KEY' ) ) {
 			$this->encryption_key = GP_AUTO_EXTRACT_ENCRYPT_KEY;
@@ -241,11 +241,11 @@ class GP_Auto_Extract extends GP_Route_Main {
 	 * @return Array Processed request.
 	 */
 	public function authenticate_download( $r, $url ) {
-		if ( array_key_exists( $url, $this->url_credentials ) ) {
+		if ( array_key_exists( $url, $this->url_headers ) ) {
 			if ( ! is_array( $r['headers'] ) ) {
 				$r['headers'] = array();
 			};
-			$r['headers']['Authorization'] = 'Basic ' . base64_encode( $this->url_credentials[ $url ] );
+			$r['headers'] = array_merge( $r['headers'], $this->url_headers[ $url ] );
 			$r['redirection'] = 1;
 		}
 		return $r;
@@ -262,15 +262,29 @@ class GP_Auto_Extract extends GP_Route_Main {
 	 * @return String Message.
 	 */
 	private function extract_project( $project, $project_settings, $format_message = true ) {
-		$url_name = sprintf(
-			$this->source_type_templates[ $project_settings[ $project->id ]['type'] ],
-			$project_settings[ $project->id ]['setting'],
-			$project_settings[ $project->id ]['branch'] ?: 'master'
-		);
-
 		$current_project = $project_settings[ $project->id ];
 
 		$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
+		$skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
+		$import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
+		$import_file   = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
+
+		$is_single_from_github = ( 'github' === $project_settings[ $project->id ]['type'] ) && ( 'on' === $skip_makepot );
+
+		if ( $is_single_from_github ) {
+			// If we just need one file, we can skip downloading the full repository and use Contents API to retrieve just the file.
+			$url_template = 'https://api.github.com/repos/%1$s/contents/%3$s?ref=%2$s';
+		} else {
+			$url_template = $this->source_type_templates[ $project_settings[ $project->id ]['type'] ];
+		}
+
+		// Apply values to url template.
+		$url_name = sprintf(
+			$url_template,
+			$project_settings[ $project->id ]['setting'],
+			$project_settings[ $project->id ]['branch'] ?: 'master',
+			$import_file
+		);
 
 		if ( 'on' === $use_http_basic_auth ) {
 			$http_auth_username  = array_key_exists( 'http_auth_username', $current_project ) ? $current_project['http_auth_username'] : '';
@@ -280,7 +294,10 @@ class GP_Auto_Extract extends GP_Route_Main {
 				$http_auth_password = $this->decrypt_data( $http_auth_password );
 			}
 
-			$this->url_credentials[ $url_name ] = $http_auth_username . ':' . $http_auth_password;
+			$this->url_headers[ $url_name ]['Authorization'] = 'Basic ' . base64_encode( $http_auth_username . ':' . $http_auth_password );
+			if ( $is_single_from_github ) {
+				$this->url_headers[ $url_name ]['Accept'] = 'application/vnd.github.v3.raw';
+			}
 
 			add_filter( 'http_request_args', array( $this, 'authenticate_download' ), 10, 2 );
 		}
@@ -295,49 +312,45 @@ class GP_Auto_Extract extends GP_Route_Main {
 
 		if ( ! is_wp_error( $source_file ) ) {
 
-			include( dirname( __FILE__ ) . '/include/extract/makepot.php' );
+			if ( ! $is_single_from_github ) {
+				include( dirname( __FILE__ ) . '/include/extract/makepot.php' );
 
-			// Get a temporary file, use gpa as the first four letters of it.
-			$temp_dir = tempnam( sys_get_temp_dir(), 'gpa' );
-			$temp_pot = tempnam( sys_get_temp_dir(), 'gpa' );
+				// Get a temporary file, use gpa as the first four letters of it.
+				$temp_dir = tempnam( sys_get_temp_dir(), 'gpa' );
+				$temp_pot = tempnam( sys_get_temp_dir(), 'gpa' );
 
-			// Now delete the file and recreate it as a directory.
-			unlink( $temp_dir );
-			mkdir( $temp_dir );
+				// Now delete the file and recreate it as a directory.
+				unlink( $temp_dir );
+				mkdir( $temp_dir );
 
-			$zip = new ZipArchive;
-			if ( true === $zip->open( $source_file ) ) {
-				$zip->extractTo( $temp_dir );
-				$zip->close();
+				$zip = new ZipArchive;
+				if ( true === $zip->open( $source_file ) ) {
+					$zip->extractTo( $temp_dir );
+					$zip->close();
 
-				unlink( $source_file );
-			} else {
-				unlink( $source_file );
+					unlink( $source_file );
+				} else {
+					unlink( $source_file );
 
-				return '<div class="notice error"><p>' . sprintf( __( 'Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
-			}
+					return '<div class="notice error"><p>' . sprintf( __( 'Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
+				}
 
-			$src_dir = $temp_dir;
+				$src_dir = $temp_dir;
 
-			// Check to see if there is only a single directory in the resulting zip extract root directory, if so, make it the root of the makepot call.
-			$src_files = scandir( $src_dir );
+				// Check to see if there is only a single directory in the resulting zip extract root directory, if so, make it the root of the makepot call.
+				$src_files = scandir( $src_dir );
 
-			// If there are exactly three files in the list ( '.', '..' and something else ) then check the third one and if it's a directory, make it he new $src_dir.
-			if ( 3 === count( $src_files ) ) {
-				if ( is_dir( $src_dir . '/' . $src_files[2] ) ) {
-					$src_dir .= '/' . $src_files[2];
+				// If there are exactly three files in the list ( '.', '..' and something else ) then check the third one and if it's a directory, make it he new $src_dir.
+				if ( 3 === count( $src_files ) ) {
+					if ( is_dir( $src_dir . '/' . $src_files[2] ) ) {
+						$src_dir .= '/' . $src_files[2];
+					}
 				}
 			}
 
-			$skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
-			$import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
-			$import_file   = array_key_exists( 'import_file', $current_project ) ? $current_project['import_file'] : '';
-
 			if ( 'on' === $skip_makepot ) {
 
-				$file_path = $src_dir . ( '/' === $import_file[0] ? '' : '/' ) . $import_file;
-
-				$format = gp_get_import_file_format( $import_format ?: 'auto', $file_path );
+				$format = gp_get_import_file_format( $import_format ?: 'auto', $import_file );
 
 				if ( ! $format ) {
 					if ( true === $format_message ) {
@@ -353,7 +366,11 @@ class GP_Auto_Extract extends GP_Route_Main {
 					return $message;
 				}
 
-				$pot_file = $file_path;
+				if ( $is_single_from_github ) {
+					$pot_file = $source_file;
+				} else {
+					$pot_file = $src_dir . ( '/' === $import_file[0] ? '' : '/' ) . $import_file;
+				}
 
 			} else {
 
@@ -373,8 +390,12 @@ class GP_Auto_Extract extends GP_Route_Main {
 
 			$translations = $format->read_originals_from_file( $pot_file );
 
-			$this->delTree( $temp_dir );
-			unlink( $temp_pot );
+			if ( $is_single_from_github ) {
+				unlink( $pot_file );
+			} else {
+				$this->delTree( $temp_dir );
+				unlink( $temp_pot );
+			}
 
 			if ( false === $translations ) {
 				return '<div class="notice error"><p>' . __( 'Failed to read strings from source code.' ) . '</p></div>';
