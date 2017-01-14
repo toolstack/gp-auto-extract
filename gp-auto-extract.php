@@ -115,13 +115,6 @@ class GP_Auto_Extract extends GP_Route_Main {
 	}
 
 	/**
-	 * This function is here as placeholder to support adding the auto extract option to the router.
-	 * Without this placeholder there is a fatal error generated.
-	 */
-	public function before_request() {
-	}
-
-	/**
 	 * This function handles the actual auto extract passed in by the router for the projects menu.
 	 *
 	 * @param String $project_path The url path to the project.
@@ -159,13 +152,6 @@ class GP_Auto_Extract extends GP_Route_Main {
 	}
 
 	/**
-	 * This function is here as placeholder to support adding the auto extract option to the router.
-	 * Without this placeholder there is a fatal error generated.
-	 */
-	public function after_request() {
-	}
-
-	/**
 	 * This function adds the "Auto Extract" option to the projects menu.
 	 *
 	 * @param Array      $actions Array containing project actions.
@@ -176,7 +162,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$project_settings = (array) get_option( 'gp_auto_extract', array() );
 
 		if ( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings ) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' !== $project_settings[ $project->id ]['type'] ) {
-			$actions[] .= gp_link_get( gp_url( 'auto-extract/' . $project->slug ), esc_html__( 'Auto Extract' ) );
+			$actions[] .= gp_link_get( gp_url( 'auto-extract/' . $project->slug ), __( 'Auto Extract' ) );
 		}
 
 		return $actions;
@@ -212,7 +198,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 	 * This function adds the admin settings page to WordPress.
 	 */
 	public function admin_menu() {
-		add_options_page( esc_html__( 'GP Auto Extract' ), esc_html__( 'GP Auto Extract' ), 'manage_options', basename( __FILE__ ), array( $this, 'admin_page' ) );
+		add_options_page( __( 'GP Auto Extract' ), __( 'GP Auto Extract' ), 'manage_options', basename( __FILE__ ), array( $this, 'admin_page' ) );
 	}
 
 	/**
@@ -292,7 +278,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			} else {
 				unlink( $source_file );
 
-				return '<div class="notice updated"><p>' . esc_html( sprintf( __( 'Failed to extract zip file: "%s".' ), $source_file ) ) . '</p></div>';
+				return '<div class="notice updated"><p>' . sprintf( __( 'Failed to extract zip file: "%s".' ), $source_file ) . '</p></div>';
 			}
 
 			$src_dir = $temp_dir;
@@ -339,7 +325,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			unlink( $temp_pot );
 
 			if ( false === $translations ) {
-				return '<div class="notice updated"><p>' . esc_html__( 'Failed to read strings from source code.' ) . '</p></div>';
+				return '<div class="notice updated"><p>' . __( 'Failed to read strings from source code.' ) . '</p></div>';
 			}
 
 			list( $originals_added, $originals_existing, $originals_fuzzied, $originals_obsoleted ) = GP::$original->import_for_project( $project, $translations );
@@ -348,14 +334,14 @@ class GP_Auto_Extract extends GP_Route_Main {
 				$message .= '<div class="notice updated"><p>';
 			}
 
-			$message .= esc_html( sprintf(
+			$message .= sprintf(
 				__( '%1$s new strings added, %2$s updated, %3$s fuzzied, and %4$s obsoleted in the "%5$s" project.' ),
 				$originals_added,
 				$originals_existing,
 				$originals_fuzzied,
 				$originals_obsoleted,
 				$project->name
-			) );
+			);
 
 			if ( true === $format_message ) {
 				$message .= '</p></div>';
@@ -365,7 +351,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 				$message .= '<div class="notice updated"><p>';
 			}
 
-			$message .= esc_html( sprintf( __( 'Failed to download "%s".' ), $url_name ) ) . '</p></div>';
+			$message .= sprintf( __( 'Failed to download "%s".' ), $url_name ) . '</p></div>';
 
 			if ( true === $format_message ) {
 				$message .= '</p></div>';
@@ -381,7 +367,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 	public function admin_page() {
 		// If the current user can't manage options, display a message and return immediately.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			esc_html_e( 'You do not have permissions to this page!' );
+			_e( 'You do not have permissions to this page!' );
 			return;
 		}
 
@@ -432,20 +418,16 @@ class GP_Auto_Extract extends GP_Route_Main {
 					if ( 'none' !== $project_settings[ $project->id ]['type'] ) {
 						$message = $this->extract_project( $project, $project_settings );
 					} else {
-						$message = '<div class="notice error"><p>' . esc_html( sprintf( __( 'No source type selected for project "%s".' ), $project->name ) ) . '</p></div>';
+						$message = '<div class="notice error"><p>' . sprintf( __( 'No source type selected for project "%s".' ), $project->name ) . '</p></div>';
 					}
 				}
 			}
 		}
 	?>
 <div class="wrap">
-	<?php
-	// @codingStandardsIgnoreStart
-	echo $message;
-	// @codingStandardsIgnoreEnd
-	?>
+	<?php echo $message; ?>
 
-	<h2><?php esc_html_e( 'GP Auto Extract Settings' ); ?></h2>
+	<h2><?php _e( 'GP Auto Extract Settings' ); ?></h2>
 
 	<br />
 
@@ -455,11 +437,11 @@ class GP_Auto_Extract extends GP_Route_Main {
 		<table class="widefat striped">
 			<thead>
 			<tr>
-				<th><?php esc_html_e( 'Project' ); ?></th>
-				<th><?php esc_html_e( 'Source Type' ); ?></th>
-				<th><?php esc_html_e( 'Setting' ); ?></th>
-				<th><?php esc_html_e( 'Branch' ); ?></th>
-				<th><?php esc_html_e( 'Authorization' ); ?></th>
+				<th><?php _e( 'Project' ); ?></th>
+				<th><?php _e( 'Source Type' ); ?></th>
+				<th><?php _e( 'Setting' ); ?></th>
+				<th><?php _e( 'Branch' ); ?></th>
+				<th><?php _e( 'Authorization' ); ?></th>
 			</tr>
 			</thead>
 
@@ -492,7 +474,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			esc_attr( $project->id ),
 			/* translators: %s: project name */
 			esc_attr( sprintf( __( 'Edit project &#8220;%s&#8221;' ), $project->name ) ),
-			esc_html__( 'Edit' )
+			__( 'Edit' )
 		);
 
 		if ( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings ) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' !== $project_settings[ $project->id ]['type'] ) {
@@ -501,7 +483,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 				esc_attr( $project->id ),
 				/* translators: %s: project name */
 				esc_attr( sprintf( __( 'Reset &#8220;%s&#8221;' ), $project->name ) ),
-				esc_html__( 'Reset' )
+				__( 'Reset' )
 			);
 
 			$row_actions .= sprintf(
@@ -509,7 +491,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 				esc_attr( $project->id ),
 				/* translators: %s: project name */
 				esc_attr( sprintf( __( 'Extract &#8220;%s&#8221;' ), $project->name ) ),
-				esc_html__( 'Extract' )
+				__( 'Extract' )
 			);
 		}
 
@@ -533,58 +515,56 @@ class GP_Auto_Extract extends GP_Route_Main {
 						<strong><?php echo esc_html( $project->name ); ?></strong>
 						<div class="row-actions">
 							<?php
-							// @codingStandardsIgnoreStart
 							echo $row_actions;
-							// @codingStandardsIgnoreEnd
 							?>
 						</div>
 					</td>
-					<td><?php echo esc_html( $this->source_types[ $source_type ] ); ?></td>
+					<td><?php echo $this->source_types[ $source_type ]; ?></td>
 					<td><?php echo esc_html( $setting ); ?></td>
-					<td><?php echo esc_html( $branch_label ); ?></td>
-					<td><?php echo esc_html( $use_http_basic_auth_label ); ?></td>
+					<td><?php echo $branch_label; ?></td>
+					<td><?php echo $use_http_basic_auth_label; ?></td>
 				</tr>
 				<tr class="hidden"></tr>
 				<tr id="edit-project-<?php echo esc_attr( $project->id ); ?>" class="source-type-<?php echo esc_attr( $source_type ); ?> hidden inline-edit-row inline-edit-row-page inline-edit-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor">
 					<td colspan="5" class="colspanchange">
 						<fieldset class="inline-edit-col-left">
-							<legend class="inline-edit-legend"><?php esc_html_e( 'Edit' ); ?></legend>
+							<legend class="inline-edit-legend"><?php _e( 'Edit' ); ?></legend>
 							<div class="inline-edit-col">
 								<label>
-									<span class="title"><?php esc_html_e( 'Project' ); ?></span>
+									<span class="title"><?php _e( 'Project' ); ?></span>
 									<span class="input-text-wrap"><strong><?php echo esc_html( $project->name ); ?></strong></span>
 								</label>
 								<label>
-									<span class="title"><?php esc_html_e( 'Source Type' ); ?></span>
+									<span class="title"><?php _e( 'Source Type' ); ?></span>
 									<select class="source_type" name="source_type_<?php echo esc_attr( $project->id ); ?>" id="source_type_<?php echo esc_attr( $project->id ); ?>">
 									<?php foreach ( $this->source_types as $id => $type ) { ?>
-										<option value="<?php echo esc_attr( $id ); ?>" <?php echo selected( $source_type, $id ); ?>><?echo esc_html( $type ); ?></option>;
+										<option value="<?php echo esc_attr( $id ); ?>" <?php echo selected( $source_type, $id ); ?>><?php echo $type; ?></option>;
 									<?php } ?>
 									</select>
 								</label>
 								<label class="hide-if-none">
-									<span class="title"><?php esc_html_e( 'Setting' ); ?></span>
+									<span class="title"><?php _e( 'Setting' ); ?></span>
 									<span class="input-text-wrap"><input type="text" class="gpae-setting" name="setting_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $setting ); ?>"></span>
 								</label>
 								<div class="inline-edit-group wp-clearfix show-if-github">
 									<label class="alignleft">
-										<span class="title"><?php esc_html_e( 'Branch/Tag' ); ?></span>
+										<span class="title"><?php _e( 'Branch/Tag' ); ?></span>
 										<span class="input-text-wrap"><input type="text" name="branch_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $branch ); ?>" placeholder="master"></span>
 									</label>
 								</div>
 								<div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress">
 									<label class="alignleft">
 										<input type="checkbox" name="use_http_basic_auth_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $use_http_basic_auth, 'on' ); ?> class="group-toggle" data-group="httpauth-<?php echo esc_attr( $project->id ); ?>">
-										<span class="checkbox-title"><?php esc_html_e( 'Use HTTP Basic Authentication' ); ?></span>
+										<span class="checkbox-title"><?php _e( 'Use HTTP Basic Authentication' ); ?></span>
 									</label>
 								</div>
 								<div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress hidden group-httpauth-<?php echo esc_attr( $project->id ); ?>">
 									<label class="alignleft">
-										<span class="title"><?php esc_html_e( 'Username' ); ?></span>
+										<span class="title"><?php _e( 'Username' ); ?></span>
 										<span class="input-text-wrap"><input type="text" name="http_auth_username_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $http_auth_username ); ?>"></span>
 									</label>
 									<label class="alignleft">
-										<span class="title"><?php esc_html_e( 'Password' ); ?></span>
+										<span class="title"><?php _e( 'Password' ); ?></span>
 										<span class="input-text-wrap"><input type="text" class="gpae-password" name="http_auth_password_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $http_auth_password ); ?>"></span>
 									</label>
 								</div>
@@ -595,33 +575,31 @@ class GP_Auto_Extract extends GP_Route_Main {
 								<div class="inline-edit-group wp-clearfix hide-if-none">
 									<label class="alignleft">
 										<input type="checkbox" name="skip_makepot_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $skip_makepot, 'on' ); ?> class="group-toggle" data-group="makepot-<?php echo esc_attr( $project->id ); ?>">
-										<span class="checkbox-title"><?php esc_html_e( 'Import from existing file' ); ?></span>
+										<span class="checkbox-title"><?php _e( 'Import from existing file' ); ?></span>
 									</label>
 								</div>
 								<div class="inline-edit-group wp-clearfix hide-if-none hidden group-makepot-<?php echo esc_attr( $project->id ); ?>">
 									<label class="alignleft">
-										<span class="title"><?php esc_html_e( 'Format' ); ?></span>
+										<span class="title"><?php _e( 'Format' ); ?></span>
 										<?php
 										$format_options = array();
 										foreach ( GP::$formats as $slug => $format ) {
 											$format_options[ $slug ] = $format->name;
 										}
-										// @codingStandardsIgnoreStart
 										echo gp_select( 'import_format_' . $project->id, $format_options, $import_format ?: 'po' );
-										// @codingStandardsIgnoreEnd
 										?>
 									</label>
 								</div>
 								<div class="inline-edit-group wp-clearfix hide-if-none hidden group-makepot-<?php echo esc_attr( $project->id ); ?>">
 									<label>
-										<span class="title"><?php esc_html_e( 'File' ); ?></span>
+										<span class="title"><?php _e( 'File' ); ?></span>
 										<span class="input-text-wrap"><input type="text" name="import_file_<?php echo esc_attr( $project->id ); ?>" value="<?php echo esc_attr( $import_file ); ?>" placeholder="<?php esc_attr_e( 'path of file to import relative to repository or archive root' ); ?>"></span>
 									</label>
 								</div>
 							</div>
 						</fieldset>
 						<p class="submit inline-edit-save">
-							<button type="button" class="button cancel alignleft" data-project-id="<? echo esc_attr( $project->id ); ?>"><?php esc_html_e( 'Cancel' ); ?></button>
+							<button type="button" class="button cancel alignleft" data-project-id="<?php echo esc_attr( $project->id ); ?>"><?php _e( 'Cancel' ); ?></button>
 							<input type="submit" name="save_<?php echo esc_attr( $project->id ); ?>" class="button button-primary save alignright" value="<?php esc_attr_e( 'Save' ); ?>"/>
 							<br class="clear">
 						</p>
