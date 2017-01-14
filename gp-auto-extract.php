@@ -344,7 +344,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 						$message .= '<div class="notice error"><p>';
 					}
 
-					$message .= sprintf( __( 'Failed to detect format for "%s".' ), $import_file ) . '</p></div>';
+					$message .= sprintf( __( 'Failed to detect format for "%s".' ), $import_file );
 
 					if ( true === $format_message ) {
 						$message .= '</p></div>';
@@ -403,7 +403,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 				$message .= '<div class="notice error"><p>';
 			}
 
-			$message .= sprintf( __( 'Failed to download "%s".' ), $url_name ) . '</p></div>';
+			$message .= sprintf( __( 'Failed to download "%s".' ), $url_name );
 
 			if ( true === $format_message ) {
 				$message .= '</p></div>';
