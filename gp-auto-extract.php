@@ -299,9 +299,25 @@ class GP_Auto_Extract extends GP_Route_Main {
 
 			if ( 'on' === $skip_makepot ) {
 
-				$format = gp_array_get( GP::$formats, $import_format, null );
+				$file_path = $src_dir . ( '/' === $import_file[0] ? '' : '/' ) . $import_file;
 
-				$pot_file = $format->read_originals_from_file( $src_dir . ( '/' === $import_file[0] ? '' : '/' ) . $import_file );
+				$format = gp_get_import_file_format( $import_format ?: 'auto', $file_path );
+
+				if ( ! $format ) {
+					if ( true === $format_message ) {
+						$message .= '<div class="notice error"><p>';
+					}
+
+					$message .= sprintf( __( 'Failed to detect format for "%s".' ), $import_file ) . '</p></div>';
+
+					if ( true === $format_message ) {
+						$message .= '</p></div>';
+					}
+
+					return $message;
+				}
+
+				$pot_file = $file_path;
 
 			} else {
 
@@ -348,7 +364,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			}
 		} else {
 			if ( true === $format_message ) {
-				$message .= '<div class="notice updated"><p>';
+				$message .= '<div class="notice error"><p>';
 			}
 
 			$message .= sprintf( __( 'Failed to download "%s".' ), $url_name ) . '</p></div>';
@@ -583,10 +599,11 @@ class GP_Auto_Extract extends GP_Route_Main {
 										<span class="title"><?php _e( 'Format' ); ?></span>
 										<?php
 										$format_options = array();
+										$format_options['auto'] = __( 'Auto Detect' );
 										foreach ( GP::$formats as $slug => $format ) {
 											$format_options[ $slug ] = $format->name;
 										}
-										echo gp_select( 'import_format_' . $project->id, $format_options, $import_format ?: 'po' );
+										echo gp_select( 'import_format_' . $project->id, $format_options, $import_format ?: 'auto' );
 										?>
 									</label>
 								</div>
