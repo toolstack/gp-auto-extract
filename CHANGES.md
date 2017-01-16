@@ -1,3 +1,11 @@
+## 0.8
+* Release Date: January 16, 2017
+* Info: Welcome new contributor brazabr!
+* Added: Support for HTTP Basic Authentication for GitHub (thanks brazabr).
+* Added: Option to skip POT generation and import an existing file from repository/archive (thanks brazabr).
+* Added: Option to override GitHub branch or tag (thanks brazabr).
+* Updated: UI for editing each project setting (thanks brazabr).
+
 ## 0.7
 * Release Date: January 10, 2017
 * Added: Auto Extract option to the projects menu on the front end.

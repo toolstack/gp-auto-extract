@@ -2,10 +2,20 @@
 
 A plugin for [GlotPress](https://wordpress.org/plugins/glotpress) that adds an option to extract original strings from a remote source repo directly in to a GlotPress project.
 
-To set it up, go to Settings->GP Auto Extract in WordPress. You'll see a list of your projects in GP along with two options:
+Features:
+
+1. WordPress, GitHub and custom sources.
+2. Private GitHub repos with HTTP basic authentication.
+3. GitHub tags and branches.
+4. Importing for an existing extract file.
+
+To set it up, go to Settings->GP Auto Extract in WordPress. You'll see a list of your projects in GP, you can edit the settings for each one:
 
 1. Source Type
 2. Setting
+3. Branch/Tag (for GitHub repos only)
+4. Use HTTP Basic Authentication (for GitHub repos only)
+4. Import from existing file
 
 Each source type has the following settings associated with it:
 
