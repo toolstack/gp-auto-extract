@@ -37,6 +37,13 @@
 	display: none !important;
 }
 
+.source-type-wordpress_theme .hide-if-wordpress_theme {
+	display: none !important;
+}
+.source-type-wordpress_theme .show-if-github {
+	display: none !important;
+}
+
 .source-type-custom .hide-if-custom {
 	display: none !important;
 }
