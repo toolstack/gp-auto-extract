@@ -13,6 +13,10 @@
  * @package GlotPress
  */
 
+if( ! class_exists( 'GP_Route_Main' ) ) {
+	return;
+}	
+ 
 /**
  * Ok, we're going to cheat a little bit here and create our main class as an extension of the GP_Route_Main class.
  *
