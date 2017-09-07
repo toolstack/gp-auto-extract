@@ -34,6 +34,7 @@ jQuery( document ).ready( function() {
 		$tr.removeClass( 'source-type-none' );
 		$tr.removeClass( 'source-type-github' );
 		$tr.removeClass( 'source-type-wordpress' );
+		$tr.removeClass( 'source-type-wordpress_theme' );
 		$tr.removeClass( 'source-type-custom' );
 
 		var source_type = jQuery( this ).val();

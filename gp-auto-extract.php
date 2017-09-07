@@ -79,12 +79,13 @@ class GP_Auto_Extract extends GP_Route_Main {
 	 * Initialize the variables, hooks and setup GlotPress API routes.
 	 */
 	public function __construct() {
-		$this->source_types = array( 'none' => __( 'none' ), 'github' => __( 'GitHub' ), 'wordpress' => __( 'WordPress.org' ), 'custom' => __( 'Custom' ) );
+		$this->source_types = array( 'none' => __( 'none' ), 'github' => __( 'GitHub' ), 'wordpress' => __( 'WordPress.org Plugin' ), 'wordpress_theme' => __( 'WordPress.org Theme' ), 'custom' => __( 'Custom' ) );
 		$this->source_type_templates = array(
-			'none'      => '',
-			'github'    => 'https://github.com/%1$s/archive/%2$s.zip',
-			'wordpress' => 'https://downloads.wordpress.org/plugin/%1$s.zip',
-			'custom'    => '%1$s',
+			'none'             => '',
+			'github'           => 'https://github.com/%1$s/archive/%2$s.zip',
+			'wordpress'        => 'https://downloads.wordpress.org/plugin/%1$s.zip',
+			'wordpress_theme'  => 'https://downloads.wordpress.org/theme/%1$s.zip',
+			'custom'           => '%1$s',
 		);
 		$this->url_headers = array();
 
@@ -133,13 +134,15 @@ class GP_Auto_Extract extends GP_Route_Main {
 				'none' => '',
 				'github' => esc_attr__( 'or Personal Access Token' ),
 				'wordpress' => '',
+				'wordpress_theme' => '',
 				'custom' => '',
 			),
 			'settings' => array(
 				'none' => '',
 				'github' => esc_attr__( 'username/repository' ),
-				'wordpress' => esc_attr__( 'plugin-or-theme-slug' ),
-				'custom' => esc_attr__( 'url for a valid archive with source files' ),
+				'wordpress' => esc_attr__( 'plugin-slug' ),
+				'wordpress_theme' => esc_attr__( 'theme-slug' ),
+				'custom' => esc_attr__( 'URL for a valid archive with source files' ),
 			),
 		);
 		wp_localize_script( 'gp-auto-extract-js', 'gpae', $translation_array );
@@ -643,6 +646,9 @@ class GP_Auto_Extract extends GP_Route_Main {
 		} elseif ( 'wordpress' === $source_type ) {
 			$branch_label = __( 'N/A' );
 			$use_http_basic_auth_label = __( 'N/A' );
+		} elseif ( 'wordpress_theme' === $source_type ) {
+			$branch_label = __( 'N/A' );
+			$use_http_basic_auth_label = __( 'N/A' );
 		} elseif ( 'custom' === $source_type ) {
 			$branch_label = __( 'N/A' );
 			$use_http_basic_auth_label = $use_http_basic_auth ? __( 'Enabled' ) : __( 'Disabled' );
@@ -701,7 +707,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 										<span class="input-text-wrap"><input type="text" name="branch_<?php echo esc_attr( $project->id ); ?>" class="inline-edit-password-input" value="<?php echo esc_attr( $branch ); ?>" placeholder="master"></span>
 									</label>
 								</div>
-								<div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress">
+								<div class="inline-edit-group wp-clearfix hide-if-none hide-if-wordpress hide-if-wordpress_theme">
 									<label class="alignleft">
 										<input type="checkbox" name="use_http_basic_auth_<?php echo esc_attr( $project->id ); ?>" <?php echo checked( $use_http_basic_auth, 'on' ); ?> class="group-toggle" data-group="httpauth-<?php echo esc_attr( $project->id ); ?>">
 										<span class="checkbox-title"><?php _e( 'Use HTTP Basic Authentication' ); ?></span>
