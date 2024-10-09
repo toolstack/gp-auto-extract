@@ -1,0 +1,11 @@
+/assets
+/.git
+/.github
+/node_modules
+
+.distignore
+.gitignore
+Gruntfile.js
+package.json
+package-lock.json
+readme.md
