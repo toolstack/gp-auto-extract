@@ -48,7 +48,7 @@ Install from the WordPress plugin directory.
 
 = Does the plugin support webhooks for remote repos? =
 
-Not yet, the next release will likely have support for webhooks so the extract can be executed whenever a remote file changes.
+Not yet, the 1.0 release will likely have support for webhooks so the extract can be executed whenever a remote file changes.
 
 == Changelog ==
 = 0.9 =
