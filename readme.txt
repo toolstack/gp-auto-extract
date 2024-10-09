@@ -10,7 +10,7 @@ Stable tag: 0.9
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A plugin for GlotPress as a WordPress plugin that adds an option to extract original strings from a remote source repo directly in to a GlotPress project.
+A plugin for GlotPress that adds an option to extract original strings from a remote source repo directly in to a GlotPress project.
 
 == Description ==
 
