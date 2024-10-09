@@ -3,6 +3,7 @@
  * Console application, which adds metadata strings from
  * a WordPress extension to a POT file
  *
+ * @version $Id: pot-ext-meta.php 24564 2015-02-01 20:44:06Z ocean90 $
  * @package wordpress-i18n
  * @subpackage tools
  */
@@ -74,5 +75,3 @@ if ($included_files[0] == __FILE__) {
 	}
 	$potextmeta->append( $argv[1], isset( $argv[2] ) ? $argv[2] : '-', isset( $argv[3] ) ? $argv[3] : null );
 }
-
-?>

@@ -49,7 +49,7 @@ class StringExtractor {
 		if ( $includes ) {
 			$matched_any_include = false;
 			foreach( $includes as $include ) {
-				if ( preg_match( '|^'.$include.'$|', $path ) ) {
+				if ( preg_match( '#^'.$include.'$#', $path ) ) {
 					$matched_any_include = true;
 					break;
 				}
@@ -58,7 +58,7 @@ class StringExtractor {
 		}
 		if ( $excludes ) {
 			foreach( $excludes as $exclude ) {
-				if ( preg_match( '|^'.$exclude.'$|', $path ) ) {
+				if ( preg_match( '#^'.$exclude.'$#', $path ) ) {
 					return false;
 				}
 			}
@@ -172,7 +172,7 @@ class StringExtractor {
 			if ( T_COMMENT == $id ) {
 				$text = preg_replace( '%^\s+\*\s%m', '', $text );
 				$text = str_replace( array( "\r\n", "\n" ), ' ', $text );;
-				$text = trim( preg_replace( '%^/\*|//%', '', preg_replace( '%\*/$%', '', $text ) ) );
+				$text = trim( preg_replace( '%^(/\*|//)%', '', preg_replace( '%\*/$%', '', $text ) ) );
 				if ( 0 === stripos( $text, $this->comment_prefix ) ) {
 					$latest_comment = $text;
 				}
