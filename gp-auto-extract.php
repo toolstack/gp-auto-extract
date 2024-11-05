@@ -126,9 +126,9 @@ class GP_Auto_Extract extends GP_Route_Main {
 		if ( 'settings_page_gp-auto-extract' !== $hook ) {
 			return;
 		}
-		wp_enqueue_style( 'gp-auto-extract-css', plugins_url( 'assets/css/gp-auto-extract.css', __FILE__ ) );
+		wp_enqueue_style( 'gp-auto-extract-css', plugins_url( 'css/gp-auto-extract.css', __FILE__ ) );
 
-		wp_register_script( 'gp-auto-extract-js', plugins_url( 'assets/js/gp-auto-extract.js', __FILE__ ) );
+		wp_register_script( 'gp-auto-extract-js', plugins_url( 'js/gp-auto-extract.js', __FILE__ ) );
 		$translation_array = array(
 			'passwords' => array(
 				'none' => '',
