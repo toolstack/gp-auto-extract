@@ -6,7 +6,7 @@
 **Tags:** translation, glotpress  
 **Requires at least:** 4.4  
 **Tested up to:** 6.6  
-**Stable tag:** 0.9  
+**Stable tag:** 1.0  
 **License:** GPLv2  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -51,11 +51,17 @@ Install from the WordPress plugin directory.
 Not yet, the 1.0 release will likely have support for webhooks so the extract can be executed whenever a remote file changes.
 
 ## Changelog ##
+### 1.0 ###
+* Release Date: November 5, 2024
+* Fixed: Missing assets for js/css.
+* Fixed: Various PHP8 deprecation warnings.
+* Fixed: Duplicate function definition in another plugin has already include the WP file.php code.
+
 ### 0.9 ###
 * Release Date: October 9, 2024
 * Added: Support for WordPress Themes, thanks @pedro-mendonca.
 * Fixed: Warnings/errors due to create_function() being removed in PHP8.
-* Updated: pomo and extract functions from WP and WP I18N libraries respectivly.
+* Updated: pomo and extract functions from WP and WP I18N libraries respectively.
 
 ### 0.8 ###
 * Release Date: January 16, 2017
