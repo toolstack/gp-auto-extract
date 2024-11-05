@@ -21,6 +21,7 @@ if ( !defined( 'STDERR' ) ) {
  */
 class MakePOT {
 	private $max_header_lines = 30;
+	private $extractor;
 
 	public $projects = array(
 		'generic',
