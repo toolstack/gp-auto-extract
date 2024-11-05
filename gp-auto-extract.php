@@ -174,7 +174,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 			$project_settings = (array) get_option( 'gp_auto_extract', array() );
 
 			// Since we're running on the front end we need to load the download_url() function from the wp-admin/includes directory.
-			include( ABSPATH . 'wp-admin/includes/file.php' );
+			include_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 			// Extract the strings, the third parameter disables HTML formating of the returned messages as GP doesn't need them.
 			$message = $this->extract_project( $project_obj, $project_settings, false );
