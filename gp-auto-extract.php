@@ -3,7 +3,7 @@
  * Plugin Name: GP Auto Extract
  * Plugin URI: http://glot-o-matic.com/gp-auto-extract
  * Description: Automatically extract source strings from a remote repo.
- * Version: 0.9
+ * Version: 1.0
  * Author: Greg Ross
  * Author URI: http://toolstack.com
  * Tags: glotpress, glotpress plugin, translate
