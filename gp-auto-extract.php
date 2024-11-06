@@ -271,6 +271,10 @@ class GP_Auto_Extract extends GP_Route_Main {
 	private function extract_project( $project, $project_settings, $format_message = true ) {
 		$current_project = $project_settings[ $project->id ];
 
+		if ( ! is_array( $current_project ) ) {
+			return '<div class="notice error"><p>' . __( 'Failed to find project.' ) . '</p></div>';
+		}
+
 		$use_http_basic_auth = array_key_exists( 'use_http_basic_auth', $current_project ) ? $current_project['use_http_basic_auth'] : '';
 		$skip_makepot  = array_key_exists( 'skip_makepot', $current_project ) ? $current_project['skip_makepot'] : '';
 		$import_format = array_key_exists( 'import_format', $current_project ) ? $current_project['import_format'] : '';
