@@ -199,7 +199,7 @@ class GP_Auto_Extract extends GP_Route_Main {
 		$project_settings = (array) get_option( 'gp_auto_extract', array() );
 
 		if ( is_array( $project_settings ) && array_key_exists( $project->id, $project_settings ) && is_array( $project_settings[ $project->id ] ) && array_key_exists( 'type',  $project_settings[ $project->id ] ) && 'none' !== $project_settings[ $project->id ]['type'] ) {
-			$actions[] .= gp_link_get( gp_url( 'auto-extract/' . $project->slug ), __( 'Auto Extract' ) );
+			$actions[] .= gp_link_get( gp_url( 'auto-extract/' . $project->path ), __( 'Auto Extract' ) );
 		}
 
 		return $actions;
