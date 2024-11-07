@@ -6,7 +6,7 @@ Author URI: http://toolstack.com
 Tags: translation, glotpress
 Requires at least: 4.4
 Tested up to: 6.6
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,10 @@ Install from the WordPress plugin directory.
 Not yet, the 1.0 release will likely have support for webhooks so the extract can be executed whenever a remote file changes.
 
 == Changelog ==
+= 1.1 =
+* Release Date: November 6, 2024
+* Fixed: Fatal error for subprojects when auto extract triggered from the front end.
+
 = 1.0 =
 * Release Date: November 5, 2024
 * Fixed: Missing assets for js/css.
