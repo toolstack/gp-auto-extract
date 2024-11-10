@@ -48,7 +48,26 @@ Install from the WordPress plugin directory.
 
 ### Does the plugin support webhooks for remote repos? ###
 
-Not yet, the 1.0 release will likely have support for webhooks so the extract can be executed whenever a remote file changes.
+Not at this time.
+
+### I want to include my readme headers in the extract, is that possible? ###
+
+No, but you can work around the issue.
+
+You might want to do this if the plugin your translating only exists on GitHub or some other location, the plugin description header line is used in the WordPress plugin page to translate the description into the display language.
+
+To work around this issue, create a "fake" source file, something like "extra-strings.php", and simply add the strings you want to a translation line, the file would look something like:
+
+```
+<?php
+	 __('Your plugin description here.');
+	 __('A second string here.');
+	 __('Some other string here.');
+```
+
+This will allow GP Auto Extract to pick up these strings and add them to the project.
+
+You can simply exclude this file from your plugin release zip (or leave it... no real harm).
 
 ## Changelog ##
 ### 1.1 ###
